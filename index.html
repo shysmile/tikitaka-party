@@ -1,0 +1,1741 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1226">
+<title>티키타카 파티</title>
+<!-- 티키타카 파티 — 회의실 무통신 협동 미니게임. 휴대폰용 한 장 파일(tikitaka_party.html)은 _build.cjs 가 이 파일과 JS · CSS 를 하나로 묶어 만든다 -->
+<style>
+/* 티키타카 파티 — 휴대폰 먼저(팀원), 진행자는 TV 에서 크게 */
+:root { --tp-bg: #0f1226; --tp-panel: #1a1f3d; --tp-line: rgba(255, 255, 255, 0.1); --tp-text: #f1f3ff; --tp-muted: #a3abd6; --tp-pri: #5b7cfa; --tp-pri2: #8b5cf6; --tp-good: #22c55e; --tp-warn: #f59e0b; --tp-bad: #ef4444; --tp-r: 16px; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--tp-bg); color: var(--tp-text); font-family: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+button, input, textarea { font: inherit; color: inherit; }
+.tp { min-height: 100%; display: flex; flex-direction: column; background: radial-gradient(1200px 600px at 10% -10%, #2a2f6b 0%, transparent 60%), radial-gradient(900px 500px at 110% 10%, #3b1d5e 0%, transparent 55%), var(--tp-bg); }
+.tp-ic { width: 1.15em; height: 1.15em; flex: none; }
+.tp-grow { flex: 1; }
+.tp-muted { color: var(--tp-muted); }
+.tp-small { font-size: 12px; }
+.center { text-align: center; justify-content: center; }
+/* 위 막대 */
+.tp-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(15, 18, 38, 0.85); backdrop-filter: blur(8px); border-bottom: 1px solid var(--tp-line); }
+.tp-brand { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; white-space: nowrap; }
+.tp-brand .tp-ic { color: #ffd43b; }
+.tp-roomchip { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 10px; border: 1px solid var(--tp-line); border-radius: 17px; background: rgba(255, 255, 255, 0.06); cursor: pointer; font-size: 13px; white-space: nowrap; }
+.tp-roomchip .k { color: var(--tp-muted); font-size: 11px; }
+.tp-roomchip b { letter-spacing: 1px; }
+.tp-check { margin-left: 4px; padding: 1px 7px; border-radius: 10px; background: rgba(91, 124, 250, 0.25); color: #c7d2fe; font-size: 11px; font-weight: 700; }
+.tp-iconbtn { width: 34px; height: 34px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, 0.06); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--tp-muted); }
+.tp-iconbtn.on { color: #ffd43b; }
+.tp-mode { display: inline-flex; padding: 3px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); }
+.tp-mode button { display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 10px; border: 0; border-radius: 9px; background: none; color: var(--tp-muted); cursor: pointer; font-size: 13px; font-weight: 600; }
+.tp-mode button.on { background: linear-gradient(135deg, var(--tp-pri), var(--tp-pri2)); color: #fff; }
+/* 게임 탭 — 휴대폰은 아래 고정, 진행자는 위 */
+.tp-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(15, 18, 38, 0.92); backdrop-filter: blur(8px); border-top: 1px solid var(--tp-line); }
+.tp-tabs button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; border: 0; border-radius: 12px; background: none; color: var(--tp-muted); cursor: pointer; font-size: 11px; }
+.tp-tabs button .tp-ic { width: 22px; height: 22px; }
+.tp-tabs button.on { color: #fff; background: rgba(91, 124, 250, 0.22); }
+.tp-tn { position: absolute; top: 3px; right: 10px; font-size: 9px; opacity: 0.6; }
+.tp-main { flex: 1; padding: 14px 14px 96px; }
+.tp.host .tp-tabs { position: sticky; top: 55px; bottom: auto; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 8px 14px; border-top: 0; border-bottom: 1px solid var(--tp-line); }
+.tp.host .tp-tabs button { flex-direction: row; justify-content: center; gap: 8px; padding: 10px; font-size: 16px; font-weight: 600; }
+.tp.host .tp-tn { position: static; font-size: 12px; padding: 1px 7px; border-radius: 10px; background: rgba(255, 255, 255, 0.1); opacity: 1; }
+.tp.host .tp-main { padding: 18px 24px 30px; }
+/* 단추 */
+.tp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px; padding: 0 16px; border: 1px solid var(--tp-line); border-radius: 12px; background: rgba(255, 255, 255, 0.08); color: var(--tp-text); cursor: pointer; font-weight: 600; text-decoration: none; user-select: none; }
+.tp-btn:active { transform: scale(0.97); }
+.tp-btn.primary { border: 0; background: linear-gradient(135deg, var(--tp-pri), var(--tp-pri2)); box-shadow: 0 6px 18px rgba(91, 124, 250, 0.35); }
+.tp-btn.good { border: 0; background: linear-gradient(135deg, #16a34a, #22c55e); }
+.tp-btn.danger { border: 0; background: linear-gradient(135deg, #dc2626, #f97316); }
+.tp-btn.ghost { background: none; }
+.tp-btn.sm { height: 32px; padding: 0 10px; font-size: 13px; border-radius: 10px; }
+.tp-btn.lg { height: 52px; padding: 0 20px; font-size: 17px; }
+.tp-btn.xl { height: 68px; padding: 0 30px; font-size: 22px; border-radius: 18px; }
+.tp-btn.wide { width: 100%; }
+.tp-btn.on { outline: 2px solid #ffd43b; }
+.tp-btn:disabled { opacity: 0.45; cursor: default; }
+.tp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
+.tp-tip { display: flex; align-items: center; gap: 6px; color: var(--tp-muted); font-size: 13px; }
+/* 게임 머리 */
+.tp-ghead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.tp-ghead h2 { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 20px; }
+.tp.host .tp-ghead h2 { font-size: 28px; }
+.tp-gtag { padding: 2px 9px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); color: var(--tp-muted); font-size: 12px; }
+.tp-how { margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); font-size: 14px; line-height: 1.55; }
+.tp-how p { margin: 4px 0; }
+.tp-how[hidden] { display: none; }
+/* 방 코드 */
+.tp-setup { max-width: 520px; margin: 20px auto; padding: 20px; border-radius: 20px; background: var(--tp-panel); border: 1px solid var(--tp-line); }
+.tp.host .tp-setup { max-width: 760px; }
+.tp-setup h2 { margin: 0 0 6px; }
+.tp-bigcode { margin: 16px 0; text-align: center; font-size: 84px; font-weight: 900; letter-spacing: 16px; background: linear-gradient(135deg, #ffd43b, #ff6b6b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tp-field { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; font-size: 13px; color: var(--tp-muted); }
+.tp-field input { height: 52px; padding: 0 14px; border: 1px solid var(--tp-line); border-radius: 12px; background: rgba(0, 0, 0, 0.25); color: #fff; font-size: 24px; font-weight: 800; letter-spacing: 6px; text-transform: uppercase; }
+.tp-field input#tpMobileUrl { font-size: 14px; letter-spacing: 0; text-transform: none; font-weight: 400; height: 42px; }
+.tp-stepper { display: inline-flex; align-items: center; gap: 14px; }
+.tp-stepper b { min-width: 40px; text-align: center; font-size: 28px; color: #fff; }
+.tp-mobile { margin-top: 18px; padding: 16px; border-radius: 14px; background: rgba(0, 0, 0, 0.2); }
+.tp-mobile h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; font-size: 16px; }
+.tp-qr { width: 200px; height: 200px; margin: 0 auto; padding: 8px; border-radius: 12px; background: #fff; }
+.tp-qr svg { width: 100%; height: 100%; display: block; }
+.tp-url { margin: 8px 0; text-align: center; font-size: 12px; color: var(--tp-muted); word-break: break-all; }
+/* 공용 판 */
+.tp-board { position: relative; padding: 22px; border-radius: 20px; background: linear-gradient(135deg, #20275a, #2c1d55); border: 1px solid var(--tp-line); text-align: center; overflow: hidden; }
+.tp-board.sm { padding: 16px; }
+.tp-qn { display: inline-block; margin-bottom: 8px; padding: 2px 10px; border-radius: 10px; background: rgba(255, 255, 255, 0.12); font-size: 12px; color: #c7d2fe; }
+.tp-q { min-height: 1.3em; max-height: 4.2em; font-size: 26px; font-weight: 800; line-height: 1.35; overflow: hidden; }
+.tp.host .tp-board .tp-q { font-size: 56px; max-height: 3.4em; }
+.tp-veil { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: repeating-linear-gradient(135deg, #1b1f45 0 14px, #20254f 14px 28px); font-size: 15px; color: var(--tp-muted); }
+.tp-veil b { font-size: 28px; color: #fff; letter-spacing: 6px; }
+.tp-veil .tp-ic { width: 40px; height: 40px; color: #ffd43b; }
+.tp-veil[hidden] { display: none; }
+/* 1. 컬러 */
+.tp-swatch { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 46vh; min-height: 240px; padding: 18px; border-radius: 22px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.15); margin-bottom: 14px; }
+.tp-swatch b { font-size: 30px; }
+.tp-swatch span { font-size: 15px; opacity: 0.85; }
+.tp-swatch.big { height: 60vh; flex: 1; }
+.tp-swatch.big b { font-size: 56px; }
+.tp-split { display: flex; gap: 22px; align-items: stretch; }
+.tp-timerbox { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-width: 320px; }
+.tp-ringwrap { position: relative; width: 240px; height: 240px; }
+.tp-ringwrap b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 84px; font-weight: 900; }
+.tp-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.tp-ring circle { fill: none; stroke-width: 10; }
+.tp-ring .bg { stroke: rgba(255, 255, 255, 0.1); }
+.tp-ring .fg { stroke: #ffd43b; stroke-linecap: round; transition: stroke-dashoffset 0.3s linear; }
+.urgent .tp-ring .fg { stroke: var(--tp-bad); }
+.urgent .tp-ringwrap { animation: tp-pulse 0.5s ease-in-out infinite; }
+@keyframes tp-pulse { 50% { transform: scale(1.06); } }
+.tp-fullcolor { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-end; justify-content: center; padding: 30px; font-size: 14px; }
+.tp-fullcolor span { padding: 6px 14px; border-radius: 14px; background: rgba(0, 0, 0, 0.18); }
+/* 2. 타이머 */
+.tp-target { display: flex; flex-direction: column; align-items: center; margin: 6px 0 14px; }
+.tp-target span { color: var(--tp-muted); font-size: 14px; }
+.tp-target b { font-size: 64px; font-weight: 900; font-variant-numeric: tabular-nums; background: linear-gradient(135deg, #ffd43b, #ff922b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tp-target b small { font-size: 24px; }
+.tp-target.sm b { font-size: 34px; }
+.tp.host .tp-target b { font-size: 120px; }
+.tp-watch { margin: 16px auto 4px; text-align: center; font-size: 22vw; max-font-size: 120px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+@media (min-width: 560px) { .tp-watch { font-size: 120px; } }
+.tp-watch.blind { color: #c084fc; animation: tp-blink 1s steps(2) infinite; }
+.tp-watch.shown { color: #ffd43b; animation: tp-pop 0.4s ease-out; }
+@keyframes tp-blink { 50% { opacity: 0.55; } }
+@keyframes tp-pop { 0% { transform: scale(0.6); } 70% { transform: scale(1.1); } 100% { transform: none; } }
+.tp-runners { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 12px 0; }
+.tp-runner { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; background: var(--tp-panel); border: 1px solid var(--tp-line); color: var(--tp-muted); font-size: 14px; }
+.tp-runner input { height: 56px; border: 0; border-radius: 10px; background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 32px; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; }
+.tp-runner em { font-style: normal; text-align: right; }
+.tp-result { min-height: 120px; }
+.tp-drum { text-align: center; font-size: 34px; font-weight: 800; animation: tp-blink 0.3s steps(2) infinite; }
+.tp-sum { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 30px; padding: 18px; border-radius: 18px; background: var(--tp-panel); animation: tp-pop 0.4s ease-out; }
+.tp-sum div { display: flex; flex-direction: column; align-items: center; }
+.tp-sum span { color: var(--tp-muted); }
+.tp-sum b { font-size: 48px; font-variant-numeric: tabular-nums; }
+.tp-sum strong { font-size: 36px; }
+.tp-sum.g-top strong { color: #ffd43b; } .tp-sum.g-good strong { color: #4ade80; } .tp-sum.g-mid strong { color: #93c5fd; } .tp-sum.g-low strong { color: #fca5a5; }
+/* 3. 텔레파시 */
+.tp-answer { position: relative; margin: 14px 0; }
+.tp-answer textarea { width: 100%; padding: 14px; border: 1px solid var(--tp-line); border-radius: 14px; background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 26px; font-weight: 700; resize: none; }
+.tp-cover { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 14px; background: repeating-linear-gradient(135deg, #2a2f6b 0 12px, #313777 12px 24px); cursor: pointer; }
+.tp-cover b { font-size: 20px; }
+.tp-cover span { color: var(--tp-muted); font-size: 13px; }
+.tp-cover[hidden] { display: none; }
+.tp-billboard { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px; background: #000; color: #ffe66d; text-align: center; }
+.tp-bb-q { color: #8f96c9; font-size: 14px; }
+.tp-bb-a { width: 100%; height: 60vh; display: flex; align-items: center; justify-content: center; font-weight: 900; line-height: 1.15; word-break: keep-all; overflow: hidden; text-shadow: 0 0 18px rgba(255, 230, 109, 0.75); animation: tp-pop 0.4s ease-out; }
+.tp-bb-x { color: #555; font-size: 12px; }
+.tp-callout { position: fixed; inset: 0; z-index: 110; display: flex; align-items: center; justify-content: center; font-size: 22vw; font-weight: 900; color: #fff; background: rgba(15, 18, 38, 0.7); pointer-events: none; text-shadow: 0 10px 40px rgba(91, 124, 250, 0.8); }
+.tp-callout.pop { animation: tp-pop 0.5s ease-out; }
+/* 4. 그림 */
+.tp-drawhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.tp-role { font-weight: 800; font-size: 17px; }
+.tp-word { margin: 6px 0; padding: 10px 14px; border-radius: 12px; background: #fff; color: #111; font-size: 26px; font-weight: 900; text-align: center; }
+.tp-word.hide { background: rgba(255, 255, 255, 0.1); color: var(--tp-muted); letter-spacing: 6px; }
+.tp-canvaswrap { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 56vh; margin: 10px 0; border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
+.tp-canvaswrap canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.tp-cvlock { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px; background: rgba(15, 18, 38, 0.86); text-align: center; }
+.tp-cvlock b { font-size: 20px; }
+.tp-cvlock span { color: var(--tp-muted); font-size: 13px; }
+.tp-cvlock[hidden] { display: none; }
+.tp-cvtimer { position: absolute; top: 10px; right: 10px; min-width: 56px; height: 56px; padding: 0 10px; border-radius: 28px; display: flex; align-items: center; justify-content: center; background: rgba(15, 18, 38, 0.85); color: #fff; font-size: 30px; font-weight: 900; }
+.tp-cvtimer.hot { background: var(--tp-bad); animation: tp-pulse 0.5s infinite; }
+.tp-cvtimer[hidden] { display: none; }
+.tp-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tp-sw { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.4); cursor: pointer; }
+.tp-sw.on { outline: 3px solid #ffd43b; outline-offset: 2px; }
+.tp-secret { filter: none; }
+/* 5. 암호 */
+.tp-roles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+.tp-rolebtn { height: 96px; border: 0; border-radius: 18px; background: linear-gradient(135deg, #2a2f6b, #3b1d5e); color: #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.tp-rolebtn b { font-size: 40px; line-height: 1; }
+.tp-lead { font-size: 17px; font-weight: 700; }
+.tp-clue { position: relative; padding: 18px; border-radius: 18px; background: #fffbea; color: #1f2937; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); }
+.tp-clue-k { display: inline-block; padding: 2px 10px; border-radius: 10px; background: #fde68a; color: #92400e; font-size: 12px; font-weight: 800; }
+.tp-clue p { margin: 10px 0 4px; font-size: 24px; font-weight: 800; line-height: 1.4; word-break: keep-all; }
+.tp-clue .tp-btn { position: absolute; top: 10px; right: 10px; color: #92400e; border: 0; }
+.tp-slots { display: flex; justify-content: center; gap: 10px; margin: 18px 0 10px; }
+.tp-slots span { width: 58px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 14px; border: 2px solid var(--tp-line); background: rgba(0, 0, 0, 0.3); font-size: 38px; font-weight: 900; }
+.tp-slots span.on { border-color: var(--tp-pri); }
+.tp-slots.ok span { border-color: var(--tp-good); color: #4ade80; }
+.tp-slots.shake { animation: tp-shake 0.4s; }
+@keyframes tp-shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+.tp-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 360px; margin: 0 auto; }
+.tp-pad button { height: 60px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, 0.09); color: #fff; font-size: 26px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.tp-pad button:active { background: rgba(91, 124, 250, 0.45); }
+.tp-pad button.ok { background: linear-gradient(135deg, var(--tp-pri), var(--tp-pri2)); font-size: 18px; }
+.tp-unlocked { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 14px 0; color: #4ade80; animation: tp-pop 0.5s ease-out; }
+.tp-unlocked .tp-ic { width: 72px; height: 72px; }
+.tp-unlocked b { font-size: 30px; }
+.tp-lockbig { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px; border-radius: 22px; background: linear-gradient(135deg, #20275a, #2c1d55); overflow: hidden; }
+.tp-lockbig > .tp-ic { width: 90px; height: 90px; color: #ffd43b; }
+.tp-lockbig.open > .tp-ic { color: #4ade80; }
+.tp-code { font-size: 110px; font-weight: 900; letter-spacing: 10px; font-variant-numeric: tabular-nums; }
+.tp-hints { display: flex; flex-direction: column; gap: 8px; max-width: 900px; margin: 10px auto; }
+.tp-hint { padding: 12px 16px; border-radius: 14px; background: rgba(255, 212, 59, 0.12); border: 1px solid rgba(255, 212, 59, 0.35); font-size: 22px; animation: tp-pop 0.35s ease-out; }
+.tp-hint b { margin-right: 10px; color: #ffd43b; }
+.tp-allclues { max-width: 900px; margin: 10px auto; padding-left: 28px; font-size: 22px; line-height: 1.6; }
+.tp-allclues[hidden] { display: none; }
+/* 알림 · 폭죽 */
+.tp-toast { position: fixed; left: 50%; bottom: 96px; z-index: 120; transform: translateX(-50%); max-width: 88vw; padding: 10px 18px; border-radius: 14px; background: rgba(0, 0, 0, 0.85); color: #fff; font-size: 14px; text-align: center; transition: opacity 0.4s; }
+.tp-toast.win { background: linear-gradient(135deg, #f59e0b, #ec4899); font-size: 18px; font-weight: 800; }
+.tp-toast.bad { background: #7f1d1d; }
+.tp-toast.out { opacity: 0; }
+.tp-confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 130; pointer-events: none; }
+/* 좁은 화면 */
+@media (max-width: 520px) {
+  .tp-brand b { display: none; }
+  .tp-mode button span { display: none; }
+  .tp-split { flex-direction: column; }
+  .tp-timerbox { min-width: 0; }
+  .tp-code { font-size: 64px; }
+  .tp-bigcode { font-size: 60px; letter-spacing: 10px; }
+}
+/* 티키타카 안에 끼워 쓸 때 */
+.tp.embed { min-height: 100vh; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+</style>
+</head>
+<body data-single="1">
+<div id="tkparty"></div>
+<script>
+/* 티키타카 파티 — 콘텐츠 (2026-11-22). 인프라 · 클라우드 · 플랫폼 운영 조직 공감 소재.
+ *   window.TKPartyContent = { telepathy[20], drawing[20], colors[] }
+ *   라운드마다 방 코드로 섞은 순서에서 하나씩 꺼내 쓴다(party.js) — 같은 방 · 라운드면 어느 기기에서나 같은 문제.
+ */
+(function () {
+  'use strict';
+  var C = {
+    // 한마음 텔레파시 — 정답 없는 질문, 같은 답이 많이 나올수록 승리. 짧게 쓸 수 있는 질문 위주
+    telepathy: [
+      '장애 알람이 울리면 가장 먼저 여는 것은?',
+      '금요일 오후 배포를 한 단어로 표현하면?',
+      '새벽 3시 긴급 호출, 가장 먼저 드는 생각은?',
+      '우리 팀 회의에서 가장 자주 나오는 말은?',
+      '서버실 하면 떠오르는 냄새 · 소리는?',
+      '재부팅 말고 IT 만병통치약은?',
+      '운영자가 가장 무서워하는 단어 하나는?',
+      '야근할 때 꼭 필요한 간식은?',
+      '“잠깐 확인만 부탁드려요”의 실제 소요 시간은?',
+      '점검 공지를 가장 많이 보내는 요일은?',
+      '클라우드를 음식에 비유하면?',
+      '레거시 시스템을 동물에 비유하면?',
+      '장애 회고에서 꼭 나오는 단어는?',
+      '퇴근 직전 걸려 오는 전화, 누구일까?',
+      '우리 팀 단톡방에서 가장 많이 쓰는 이모티콘 뜻은?',
+      '“로그 좀 보내 주세요” 다음에 오는 말은?',
+      '모니터 옆에 꼭 있는 물건은?',
+      '비밀번호 변경 주기가 오면 드는 생각은?',
+      'DB 가 느려졌다! 가장 먼저 의심하는 것은?',
+      '워크숍 레크리에이션 상품으로 받고 싶은 것은?',
+    ],
+    // 한 획 릴레이 그림 — 그리기 재미있고 IT · 직장인 공감
+    drawing: [
+      '불타는 서버실', '스파게티 코드', '새벽 3시 긴급 패치', '무한 로딩 중', '넘쳐흐르는 디스크',
+      '먹통이 된 모니터', '커피 수혈 중인 개발자', '회의실의 화이트보드 지옥', '구름 속 서버(클라우드)', '거미줄 쳐진 레거시 서버',
+      '퇴근 직전 걸려 온 전화', '꼬여 버린 랜선', '빨간 장애 알람', '롤백 버튼', '해킹하는 고양이',
+      '방화벽(불타는 벽)', '산더미 같은 결재 서류', '버그 잡는 잠자리채', '배포 로켓 발사', '재부팅 중인 사람',
+    ],
+    // 동기화 컬러 헌터 — 사무실에서 찾을 만한 색. [이름, HEX]
+    colors: [
+      ['토마토 빨강', '#E5383B'], ['코랄', '#FF7F50'], ['살구', '#FBB57F'], ['귤 주황', '#F77F00'], ['머스타드', '#E0B32F'],
+      ['레몬 노랑', '#F9E04B'], ['올리브', '#8A9A3B'], ['연두', '#9BD35A'], ['숲 초록', '#2D6A4F'], ['민트', '#7FD8BE'],
+      ['청록', '#1B998B'], ['하늘', '#7EC8E3'], ['코발트 파랑', '#2459C2'], ['네이비', '#1D2B53'], ['라벤더', '#B8A1E3'],
+      ['보라', '#7B2CBF'], ['자두', '#8E3B5E'], ['핫핑크', '#F72585'], ['벚꽃 분홍', '#F7C5D5'], ['베이지', '#E8D8C3'],
+      ['카키', '#A39171'], ['초콜릿 갈색', '#6B4226'], ['벽돌', '#A44A3F'], ['은회색', '#B8BCC2'], ['진회색', '#4A4E57'],
+      ['아이보리', '#F6F1E1'], ['검정', '#1A1A1A'], ['형광 노랑', '#E4FF3A'], ['다홍', '#FF5A36'], ['청보라', '#5E60CE'],
+    ],
+  };
+  window.TKPartyContent = C;
+  if (typeof module !== 'undefined') module.exports = C;
+})();
+
+</script>
+<script>
+/*
+ * 티키타카 파티 모드 — '조각난 비밀 암호' 퍼즐 생성기 (window.TKCipher)
+ *
+ * 회의실 TV(진행자)와 팀원 휴대폰은 서로 통신하지 않는다.
+ * 같은 시드 글자열(예: '방코드|라운드')을 넣으면 어디서나 같은 퍼즐이 나온다.
+ *
+ *   TKCipher.rng(seedStr)            → 0 이상 1 미만을 돌려주는 함수
+ *   TKCipher.fnv1a32(str)            → 32비트 부호 없는 해시
+ *   TKCipher.mulberry32(seed)        → 0 이상 1 미만을 돌려주는 함수
+ *   TKCipher.make(seedStr, opts)     → { code, clues[4], hints[3], solve[], level }
+ *   TKCipher.makeFull(seedStr, opts) → make 와 같되 clueObjs(문장 + 판정 함수)를 함께 줌(시험용)
+ *   TKCipher.count(preds)            → 0000~9999 가운데 판정 함수를 모두 만족하는 수의 개수
+ *   TKCipher.check(code, clueObjs)   → 조건 (a)~(d) 검사 결과
+ *
+ * ES5 문법만 쓴다(var · function). 외부 라이브러리 · 네트워크 없음.
+ */
+(function (root) {
+  'use strict';
+
+  // ---------- 같은 난수 ----------
+  function fnv1a32(str) {
+    var h = 2166136261;
+    str = String(str);
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function mulberry32(a) {
+    a = a >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function rngOf(seedStr) {
+    return mulberry32(fnv1a32(seedStr));
+  }
+
+  function rint(rng, n) { return Math.floor(rng() * n); }
+
+  function shuffle(rng, arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = rint(rng, i + 1);
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  // ---------- 0000~9999 자릿수 표 ----------
+  var ALL = [];
+  (function () {
+    for (var n = 0; n < 10000; n++) {
+      ALL.push([Math.floor(n / 1000), Math.floor(n / 100) % 10, Math.floor(n / 10) % 10, n % 10]);
+    }
+  })();
+
+  function toDigits(code) {
+    var s = String(code);
+    return [+s.charAt(0), +s.charAt(1), +s.charAt(2), +s.charAt(3)];
+  }
+
+  // ---------- 한국어 조사 ----------
+  // 숫자를 읽었을 때 받침이 있는가: 영 일 이 삼 사 오 육 칠 팔 구
+  var BATCHIM = [true, true, false, true, false, false, true, true, true, false];
+  function hasBatchim(n) {
+    if (n === 0) return true;
+    if (n % 10 === 0) return true; // 십 · 백
+    return BATCHIM[n % 10];
+  }
+  function cop(n) { return hasBatchim(n) ? n + '이다' : n + '다'; }   // 9다 · 10이다
+  function iga(n) { return n + (hasBatchim(n) ? '이' : '가'); }        // 3이 · 2가
+  function eunneun(n) { return n + (hasBatchim(n) ? '은' : '는'); }    // 3은 · 2는
+
+  var P = ['첫째', '둘째', '셋째', '넷째'];
+  var NATIVE = ['하나도', '한', '두', '세', '네'];
+  var PRIME = [false, false, true, true, false, true, false, true, false, false];
+
+  // ---------- 사실(단서 재료) ----------
+  // fact: { id, kind, tier, subj, body, conjBody, fn }
+  //   text = subj + ' ' + body,  잇는 꼴(~이며) = subj + ' ' + conjBody
+  //   subj 가 없으면 body 가 문장 전체다.
+  function mk(list, id, kind, tier, subj, body, conjBody, fn) {
+    list.push({ id: id, kind: kind, tier: tier, subj: subj, body: body, conjBody: conjBody, fn: fn });
+  }
+  function posSubj(i) { return P[i] + ' 자리는'; }
+
+  function cnt(d, n) {
+    var c = 0;
+    for (var k = 0; k < 4; k++) if (d[k] === n) c++;
+    return c;
+  }
+  function isDistinct(d) {
+    return d[0] !== d[1] && d[0] !== d[2] && d[0] !== d[3] && d[1] !== d[2] && d[1] !== d[3] && d[2] !== d[3];
+  }
+  function oddCount(d) { return (d[0] & 1) + (d[1] & 1) + (d[2] & 1) + (d[3] & 1); }
+
+  // 코드 d 에 대해 참인 사실을 모두 만든다. (rng 는 집합 단서 등 일부 선택에만 쓴다)
+  function buildFacts(d, rng) {
+    var F = [];
+    var i, j, k, n;
+
+    for (i = 0; i < 4; i++) {
+      (function (i) {
+        var v = d[i];
+        // 홀짝 (0 인 자리는 '0 도 짝수인가' 헷갈릴 수 있어 내지 않는다)
+        if (v !== 0) {
+          var p = v % 2;
+          mk(F, 'par' + i, 'parity', 1, posSubj(i), p ? '홀수다' : '짝수다', p ? '홀수이며' : '짝수이며',
+            function (x) { return x[i] % 2 === p; });
+        }
+        // 범위 5 이상 / 4 이하
+        if (v >= 5) mk(F, 'ge5_' + i, 'range', 1, posSubj(i), '5 이상이다', '5 이상이며', function (x) { return x[i] >= 5; });
+        else mk(F, 'le4_' + i, 'range', 1, posSubj(i), '4 이하다', '4 이하이며', function (x) { return x[i] <= 4; });
+        // 범위 띠 a 이상 b 이하 (폭 3~4)
+        var w = 2 + rint(rng, 2);
+        var lo = v - rint(rng, w + 1);
+        if (lo < 0) lo = 0;
+        var hi = lo + w;
+        if (hi > 9) { hi = 9; lo = 9 - w; }
+        mk(F, 'band' + i, 'band', 2, posSubj(i), lo + ' 이상 ' + hi + ' 이하다', lo + ' 이상 ' + hi + ' 이하이며',
+          function (x) { return x[i] >= lo && x[i] <= hi; });
+        // 소수
+        var pr = PRIME[v];
+        mk(F, 'prime' + i, 'prime', 2, posSubj(i), pr ? '소수(2·3·5·7)다' : '소수(2·3·5·7)가 아니다', pr ? '소수(2·3·5·7)이며' : '소수(2·3·5·7)가 아니며',
+          function (x) { return PRIME[x[i]] === pr; });
+        // 집합 '2, 5, 7 중 하나다'
+        var pool = [];
+        for (n = 0; n < 10; n++) if (n !== v) pool.push(n);
+        shuffle(rng, pool);
+        var set = [v, pool[0], pool[1]].sort(function (a, b) { return a - b; });
+        mk(F, 'set' + i, 'set', 2, posSubj(i), set.join(', ') + ' 중 하나다', set.join(', ') + ' 중 하나이며',
+          function (x) { return x[i] === set[0] || x[i] === set[1] || x[i] === set[2]; });
+        // 가장 큰 · 가장 작은 자리 (홀로 가장 클 때만)
+        var mx = true, mn = true;
+        for (k = 0; k < 4; k++) if (k !== i) { if (d[k] >= v) mx = false; if (d[k] <= v) mn = false; }
+        if (mx) mk(F, 'ismax' + i, 'isMax', 2, '', P[i] + ' 자리가 네 숫자 중 가장 크다', P[i] + ' 자리가 네 숫자 중 가장 크며',
+          function (x) { for (var q = 0; q < 4; q++) if (q !== i && x[q] >= x[i]) return false; return true; });
+        if (mn) mk(F, 'ismin' + i, 'isMin', 2, '', P[i] + ' 자리가 네 숫자 중 가장 작다', P[i] + ' 자리가 네 숫자 중 가장 작으며',
+          function (x) { for (var q = 0; q < 4; q++) if (q !== i && x[q] <= x[i]) return false; return true; });
+      })(i);
+    }
+
+    // 두 자리 관계
+    for (i = 0; i < 4; i++) {
+      for (j = i + 1; j < 4; j++) {
+        (function (i, j) {
+          var a = d[i], b = d[j];
+          var pair = P[i] + '와 ' + P[j] + ' 자리';
+          // 크다 · 작다 · 같다
+          if (a > b) mk(F, 'cmp' + i + j, 'compare', 1, posSubj(i), P[j] + ' 자리보다 크다', P[j] + ' 자리보다 크며',
+            function (x) { return x[i] > x[j]; });
+          else if (a < b) mk(F, 'cmp' + i + j, 'compare', 1, posSubj(i), P[j] + ' 자리보다 작다', P[j] + ' 자리보다 작으며',
+            function (x) { return x[i] < x[j]; });
+          else mk(F, 'cmp' + i + j, 'equal', 1, '', pair + '는 같다', pair + '는 같으며',
+            function (x) { return x[i] === x[j]; });
+          // 합
+          var s = a + b;
+          mk(F, 'sum' + i + j, 'sum2', 2, '', pair + '의 합은 ' + cop(s), pair + '의 합은 ' + s + '이며',
+            function (x) { return x[i] + x[j] === s; });
+          // 차
+          var df = Math.abs(a - b);
+          if (df > 0) mk(F, 'dif' + i + j, 'diff2', 2, '', pair + '의 차는 ' + cop(df), pair + '의 차는 ' + df + '이며',
+            function (x) { return Math.abs(x[i] - x[j]) === df; });
+          // 방향 있는 차 '넷째 자리는 첫째 자리보다 3 크다'
+          if (df > 0) {
+            var big = a > b ? i : j, small = a > b ? j : i;
+            mk(F, 'ddir' + i + j, 'diffDir', 2, posSubj(big), P[small] + ' 자리보다 ' + df + ' 크다', P[small] + ' 자리보다 ' + df + ' 크며',
+              function (x) { return x[big] - x[small] === df; });
+          }
+          // 배수 '넷째 자리는 첫째 자리의 2배다'
+          var kk;
+          for (kk = 2; kk <= 4; kk++) {
+            (function (kk) {
+              if (a > 0 && b === kk * a) mk(F, 'mul' + i + j + kk, 'multiple', 2, posSubj(j), P[i] + ' 자리의 ' + kk + '배다', P[i] + ' 자리의 ' + kk + '배이며',
+                function (x) { return x[j] === kk * x[i]; });
+              if (b > 0 && a === kk * b) mk(F, 'mul' + j + i + kk, 'multiple', 2, posSubj(i), P[j] + ' 자리의 ' + kk + '배다', P[j] + ' 자리의 ' + kk + '배이며',
+                function (x) { return x[i] === kk * x[j]; });
+            })(kk);
+          }
+        })(i, j);
+      }
+    }
+
+    // 한 자리가 다른 두 자리의 합 '넷째 자리는 첫째와 둘째 자리의 합이다'
+    for (i = 0; i < 4; i++) {
+      for (j = 0; j < 4; j++) {
+        for (k = j + 1; k < 4; k++) {
+          if (i === j || i === k) continue;
+          (function (i, j, k) {
+            if (d[i] === d[j] + d[k]) mk(F, 'add' + i + j + k, 'addRel', 3, posSubj(i), P[j] + '와 ' + P[k] + ' 자리의 합이다', P[j] + '와 ' + P[k] + ' 자리의 합이며',
+              function (x) { return x[i] === x[j] + x[k]; });
+          })(i, j, k);
+        }
+      }
+    }
+
+    // 숫자 포함 · 불포함 · 두 번
+    for (n = 0; n < 10; n++) {
+      (function (n) {
+        var c = cnt(d, n);
+        if (n === 0) {
+          if (c === 0) mk(F, 'zero', 'zero', 1, '', '0은 없다', '0은 없으며', function (x) { return cnt(x, 0) === 0; });
+          else mk(F, 'zero', 'zero', 1, '', '0이 들어 있다', '0이 들어 있으며', function (x) { return cnt(x, 0) > 0; });
+        } else {
+          if (c > 0) mk(F, 'has' + n, 'contains', 1, '', '숫자 ' + iga(n) + ' 들어 있다', '숫자 ' + iga(n) + ' 들어 있으며',
+            function (x) { return cnt(x, n) > 0; });
+          else mk(F, 'has' + n, 'notContains', 1, '', '숫자 ' + eunneun(n) + ' 없다', '숫자 ' + eunneun(n) + ' 없으며',
+            function (x) { return cnt(x, n) === 0; });
+        }
+        if (c === 2 || c === 3) {
+          var word = c === 2 ? '두' : '세';
+          mk(F, 'times' + n, 'times', 2, '', '숫자 ' + iga(n) + ' 꼭 ' + word + ' 번 나온다', '숫자 ' + iga(n) + ' 꼭 ' + word + ' 번 나오며',
+            function (x) { return cnt(x, n) === c; });
+        }
+      })(n);
+    }
+
+    // 모두 다름 / 겹침
+    if (isDistinct(d)) mk(F, 'dist', 'distinct', 1, '', '네 숫자는 모두 다르다', '네 숫자는 모두 다르며', isDistinct);
+    else mk(F, 'dist', 'repeat', 1, '', '같은 숫자가 두 번 이상 나온다', '같은 숫자가 두 번 이상 나오며', function (x) { return !isDistinct(x); });
+
+    // 오름 · 내림차순
+    if (d[0] < d[1] && d[1] < d[2] && d[2] < d[3]) mk(F, 'ord', 'ascending', 1, '', '네 숫자는 왼쪽부터 점점 커진다', '네 숫자는 왼쪽부터 점점 커지며',
+      function (x) { return x[0] < x[1] && x[1] < x[2] && x[2] < x[3]; });
+    if (d[0] > d[1] && d[1] > d[2] && d[2] > d[3]) mk(F, 'ord', 'descending', 1, '', '네 숫자는 왼쪽부터 점점 작아진다', '네 숫자는 왼쪽부터 점점 작아지며',
+      function (x) { return x[0] > x[1] && x[1] > x[2] && x[2] > x[3]; });
+
+    // 홀수인 자리 개수
+    (function () {
+      var oc = oddCount(d);
+      var body = oc === 0 ? '홀수인 자리는 하나도 없다' : '홀수인 자리는 ' + NATIVE[oc] + ' 개다';
+      var conj = oc === 0 ? '홀수인 자리는 하나도 없으며' : '홀수인 자리는 ' + NATIVE[oc] + ' 개이며';
+      mk(F, 'odd', 'oddCount', 1, '', body, conj, function (x) { return oddCount(x) === oc; });
+    })();
+
+    // 네 숫자의 합
+    (function () {
+      var s = d[0] + d[1] + d[2] + d[3];
+      mk(F, 'sum4', 'sum4', 2, '', '네 숫자의 합은 ' + cop(s), '네 숫자의 합은 ' + s + '이며',
+        function (x) { return x[0] + x[1] + x[2] + x[3] === s; });
+      var s1 = d[0] + d[1] + d[2], s2 = d[1] + d[2] + d[3];
+      mk(F, 'sum3a', 'sum3', 3, '', '앞 세 자리의 합은 ' + cop(s1), '앞 세 자리의 합은 ' + s1 + '이며',
+        function (x) { return x[0] + x[1] + x[2] === s1; });
+      mk(F, 'sum3b', 'sum3', 3, '', '뒤 세 자리의 합은 ' + cop(s2), '뒤 세 자리의 합은 ' + s2 + '이며',
+        function (x) { return x[1] + x[2] + x[3] === s2; });
+    })();
+
+    // 가장 큰 · 가장 작은 숫자
+    (function () {
+      var mx = Math.max(d[0], d[1], d[2], d[3]), mn = Math.min(d[0], d[1], d[2], d[3]);
+      mk(F, 'maxv', 'maxValue', 2, '', '가장 큰 숫자는 ' + cop(mx), '가장 큰 숫자는 ' + mx + '이며',
+        function (x) { return Math.max(x[0], x[1], x[2], x[3]) === mx; });
+      mk(F, 'minv', 'minValue', 2, '', '가장 작은 숫자는 ' + cop(mn), '가장 작은 숫자는 ' + mn + '이며',
+        function (x) { return Math.min(x[0], x[1], x[2], x[3]) === mn; });
+    })();
+
+    // 앞 두 자리 수 · 뒤 두 자리 수
+    (function () {
+      var f = d[0] * 10 + d[1], b = d[2] * 10 + d[3];
+      if (f > b) mk(F, 'half', 'halfCompare', 2, '', '앞 두 자리 수는 뒤 두 자리 수보다 크다', '앞 두 자리 수는 뒤 두 자리 수보다 크며',
+        function (x) { return x[0] * 10 + x[1] > x[2] * 10 + x[3]; });
+      else if (f < b) mk(F, 'half', 'halfCompare', 2, '', '앞 두 자리 수는 뒤 두 자리 수보다 작다', '앞 두 자리 수는 뒤 두 자리 수보다 작으며',
+        function (x) { return x[0] * 10 + x[1] < x[2] * 10 + x[3]; });
+      // 두 자리 수의 배수 (0 · 한 자리 수로 헷갈리지 않게 10 이상일 때만)
+      var KS = [3, 4, 6, 7, 8, 9];
+      var parts = [['앞', f, 0], ['뒤', b, 2]];
+      for (var q = 0; q < 2; q++) {
+        (function (name, val, off) {
+          if (val < 10) return;
+          var ok = [];
+          for (var z = 0; z < KS.length; z++) if (val % KS[z] === 0) ok.push(KS[z]);
+          if (!ok.length) return;
+          var kq = ok[rint(rng, ok.length)];
+          // '두 자리 수' 라고 밝혀 07 · 00 같은 것은 들지 않음을 분명히 한다
+          mk(F, 'tm' + name, 'twoDigitMultiple', 3, '', name + ' 두 자리는 ' + kq + '의 배수인 두 자리 수다', name + ' 두 자리는 ' + kq + '의 배수인 두 자리 수이며',
+            function (x) { var v2 = x[off] * 10 + x[off + 1]; return v2 >= 10 && v2 % kq === 0; });
+        })(parts[q][0], parts[q][1], parts[q][2]);
+      }
+    })();
+
+    return F;
+  }
+
+  // ---------- 난이도 ----------
+  var LEVELS = {
+    easy:   { w: [0, 4, 2, 0], comb: 0.45 },
+    normal: { w: [0, 2, 3, 1], comb: 0.55 },
+    hard:   { w: [0, 1, 2, 3], comb: 0.70 }
+  };
+
+  function pickFact(rng, facts, wsum, lv) {
+    var r = rng() * wsum;
+    for (var i = 0; i < facts.length; i++) {
+      r -= lv.w[facts[i].tier];
+      if (r < 0) return facts[i];
+    }
+    return facts[facts.length - 1];
+  }
+
+  function factText(f) { return f.subj ? f.subj + ' ' + f.body : f.body; }
+
+  // 단서 하나 만들기: 사실 하나, 또는 두 사실을 '~이며' 로 묶은 것
+  function makeClue(rng, facts, wsum, lv) {
+    var a = pickFact(rng, facts, wsum, lv);
+    if (rng() >= lv.comb) {
+      return { text: factText(a), fn: a.fn, ids: [a.id], kinds: [a.kind], tier: a.tier };
+    }
+    var b = null;
+    for (var t = 0; t < 8; t++) {
+      var c = pickFact(rng, facts, wsum, lv);
+      if (c.id !== a.id && c.kind !== a.kind) { b = c; break; }
+    }
+    if (!b) return { text: factText(a), fn: a.fn, ids: [a.id], kinds: [a.kind], tier: a.tier };
+    var first = a.subj ? a.subj + ' ' + a.conjBody : a.conjBody;
+    var second = (a.subj && b.subj === a.subj) ? b.body : factText(b);
+    var fa = a.fn, fb = b.fn;
+    return {
+      text: first + ' ' + second,
+      fn: function (x) { return fa(x) && fb(x); },
+      ids: [a.id, b.id], kinds: [a.kind, b.kind], tier: Math.max(a.tier, b.tier)
+    };
+  }
+
+  function filterIdx(S, fn) {
+    var out = [];
+    for (var i = 0; i < S.length; i++) if (fn(ALL[S[i]])) out.push(S[i]);
+    return out;
+  }
+  function fullMask(fn) {
+    var m = new Uint8Array(10000);
+    for (var i = 0; i < 10000; i++) if (fn(ALL[i])) m[i] = 1;
+    return m;
+  }
+  function maskCount(masks) {
+    var c = 0;
+    for (var i = 0; i < 10000; i++) {
+      var ok = 1;
+      for (var k = 0; k < masks.length; k++) if (!masks[k][i]) { ok = 0; break; }
+      c += ok;
+    }
+    return c;
+  }
+  function overlap(clue, used) {
+    for (var i = 0; i < clue.ids.length; i++) if (used[clue.ids[i]]) return true;
+    return false;
+  }
+
+  // 한 코드에 대해 단서 4개를 맞춰 본다. 실패하면 null
+  function tryBuild(rng, codeIdx, facts, wsum, lv) {
+    var S = [];
+    for (var i = 0; i < 10000; i++) S.push(i);
+    var chosen = [], used = {};
+    var limits = [6000, 1500, 60];   // 단서 1 · 2 · 3개 뒤 남을 후보 상한
+    var step, t, c, ns;
+    for (step = 0; step < 3; step++) {
+      var got = null;
+      for (t = 0; t < 30; t++) {
+        c = makeClue(rng, facts, wsum, lv);
+        if (overlap(c, used)) continue;
+        ns = filterIdx(S, c.fn);
+        if (ns.length >= S.length * 0.8) continue;      // 거의 안 좁혀지면 버림
+        if (ns.length > limits[step]) continue;
+        if (step === 2 && ns.length < 2) continue;
+        got = c; break;
+      }
+      if (!got) return null;
+      chosen.push(got);
+      for (var g = 0; g < got.ids.length; g++) used[got.ids[g]] = true;
+      S = ns;
+    }
+    // 넷째 단서: 남은 후보 가운데 코드만 남기는 것
+    var last = null;
+    for (t = 0; t < 120; t++) {
+      c = makeClue(rng, facts, wsum, lv);
+      if (overlap(c, used)) continue;
+      ns = filterIdx(S, c.fn);
+      if (ns.length === 1 && ns[0] === codeIdx) { last = c; break; }
+    }
+    if (!last) return null;
+    chosen.push(last);
+
+    // (c) · (d) 전수 검사
+    var masks = [];
+    for (i = 0; i < 4; i++) {
+      masks.push(fullMask(chosen[i].fn));
+      chosen[i].alone = maskCount([masks[i]]);
+      if (chosen[i].alone <= 30) return null;                       // (d)
+    }
+    for (i = 0; i < 4; i++) {
+      var rest = [];
+      for (var k = 0; k < 4; k++) if (k !== i) rest.push(masks[k]);
+      if (maskCount(rest) < 2) return null;                          // (c)
+    }
+    if (maskCount(masks) !== 1) return null;                         // (b)
+    return { clues: chosen, masks: masks };
+  }
+
+  function makeFull(seedStr, opts) {
+    opts = opts || {};
+    var level = LEVELS[opts.level] ? opts.level : 'normal';
+    var lv = LEVELS[level];
+    // 기본(normal)은 시드 글자열 그대로, easy · hard 는 뒤에 '#난이도' 를 붙여 다른 퍼즐이 나오게 한다
+    var rng = rngOf(level === 'normal' ? String(seedStr) : String(seedStr) + '#' + level);
+
+    for (var round = 0; round < 1000; round++) {
+      // 코드 뽑기: 0 을 쓸지 · 숫자가 겹칠지 시드에 따라
+      var allowZero = rng() < 0.5;
+      var allowRepeat = rng() < 0.4;
+      var d = [], pool = [];
+      var lo = allowZero ? 0 : 1, n;
+      for (n = lo; n <= 9; n++) pool.push(n);
+      if (allowRepeat) {
+        for (n = 0; n < 4; n++) d.push(pool[rint(rng, pool.length)]);
+      } else {
+        shuffle(rng, pool);
+        d = pool.slice(0, 4);
+      }
+      var codeIdx = d[0] * 1000 + d[1] * 100 + d[2] * 10 + d[3];
+      var facts = buildFacts(d, rng);
+      var wsum = 0, f;
+      var usable = [];
+      for (f = 0; f < facts.length; f++) if (lv.w[facts[f].tier] > 0) { usable.push(facts[f]); wsum += lv.w[facts[f].tier]; }
+
+      for (var att = 0; att < 25; att++) {
+        var r = tryBuild(rng, codeIdx, usable, wsum, lv);
+        if (r) return finish(rng, d, r, level, round);
+      }
+    }
+    throw new Error('TKCipher: 퍼즐을 만들지 못했습니다 (' + seedStr + ')');
+  }
+
+  function finish(rng, d, r, level, rounds) {
+    // 역할 1~4번에게 섞어서 나눠 줌
+    var order = shuffle(rng, [0, 1, 2, 3]);
+    var clues = [], masks = [];
+    for (var i = 0; i < 4; i++) { clues.push(r.clues[order[i]]); masks.push(r.masks[order[i]]); }
+    var code = '' + d[0] + d[1] + d[2] + d[3];
+
+    // 힌트 1: 함께 보면 가장 많이 좁혀지는 두 단서
+    var best = null, bi = 0, bj = 1;
+    for (var a = 0; a < 4; a++) for (var b = a + 1; b < 4; b++) {
+      var c2 = maskCount([masks[a], masks[b]]);
+      if (best === null || c2 < best) { best = c2; bi = a; bj = b; }
+    }
+    var p = rint(rng, 4);
+    var hints = [
+      (bi + 1) + '번과 ' + (bj + 1) + '번 단서를 먼저 함께 보세요',
+      P[p] + ' 자리는 ' + d[p] + ' 입니다',
+      p < 2 ? '앞 두 자리는 ' + d[0] + d[1] + ' 입니다' : '뒤 두 자리는 ' + d[2] + d[3] + ' 입니다'
+    ];
+
+    var solve = [
+      '1번 단서만 → 후보 ' + maskCount([masks[0]]) + '개',
+      '1~2번 → 후보 ' + maskCount([masks[0], masks[1]]) + '개',
+      '1~3번 → 후보 ' + maskCount([masks[0], masks[1], masks[2]]) + '개',
+      '1~4번 → ' + code + ' 하나'
+    ];
+    var minDrop = 10000;
+    for (i = 0; i < 4; i++) {
+      var rest = [];
+      for (var k = 0; k < 4; k++) if (k !== i) rest.push(masks[k]);
+      var mc = maskCount(rest);
+      if (mc < minDrop) minDrop = mc;
+    }
+    solve.push('한 사람이라도 빠지면 → 후보 ' + minDrop + '개 이상');
+
+    var texts = [], objs = [];
+    for (i = 0; i < 4; i++) {
+      texts.push(clues[i].text);
+      objs.push({ text: clues[i].text, fn: clues[i].fn, kinds: clues[i].kinds.slice(), tier: clues[i].tier });
+    }
+    return { code: code, clues: texts, hints: hints, solve: solve, level: level, clueObjs: objs, rounds: rounds };
+  }
+
+  function make(seedStr, opts) {
+    var full = makeFull(seedStr, opts);
+    return { code: full.code, clues: full.clues, hints: full.hints, solve: full.solve, level: full.level };
+  }
+
+  // 판정 함수 배열(또는 {fn} 객체 배열)을 모두 만족하는 수의 개수
+  function count(preds) {
+    var fns = [];
+    for (var i = 0; i < preds.length; i++) fns.push(typeof preds[i] === 'function' ? preds[i] : preds[i].fn);
+    var c = 0;
+    for (var n = 0; n < 10000; n++) {
+      var ok = true;
+      for (var k = 0; k < fns.length; k++) if (!fns[k](ALL[n])) { ok = false; break; }
+      if (ok) c++;
+    }
+    return c;
+  }
+
+  // 조건 (a)~(d) 검사
+  function check(code, clueObjs) {
+    var d = toDigits(code);
+    var res = { allTrue: true, total: 0, dropCounts: [], aloneCounts: [], ok: false };
+    for (var i = 0; i < clueObjs.length; i++) if (!clueObjs[i].fn(d)) res.allTrue = false;
+    res.total = count(clueObjs);
+    for (i = 0; i < clueObjs.length; i++) {
+      var rest = [];
+      for (var k = 0; k < clueObjs.length; k++) if (k !== i) rest.push(clueObjs[k]);
+      res.dropCounts.push(count(rest));
+      res.aloneCounts.push(count([clueObjs[i]]));
+    }
+    var c = true, dd = true;
+    for (i = 0; i < clueObjs.length; i++) {
+      if (res.dropCounts[i] < 2) c = false;
+      if (res.aloneCounts[i] <= 30) dd = false;
+    }
+    res.ok = res.allTrue && res.total === 1 && c && dd;
+    return res;
+  }
+
+  var TKCipher = {
+    fnv1a32: fnv1a32,
+    mulberry32: mulberry32,
+    rng: rngOf,
+    make: make,
+    makeFull: makeFull,
+    count: count,
+    check: check
+  };
+
+  if (typeof window !== 'undefined') window.TKCipher = TKCipher;
+  if (typeof module !== 'undefined') module.exports = TKCipher;
+})(this);
+
+</script>
+<script>
+/*
+ * 티키타카 파티 모드 — QR 코드 생성기 (window.TKQR)
+ *
+ *   TKQR.matrix(text, ecc)  → 2차원 배열 [행][열], true = 검은 칸
+ *   TKQR.svg(text, opts)    → SVG 글자열
+ *       opts: { ecc: 'M', margin: 4, size: 240, dark: '#111', light: '#fff' }
+ *   TKQR.encode(text, ecc)  → { version, ecc, mask, size, modules }
+ *
+ * 바이트 모드(UTF-8), 버전 1~15 자동, 오류 정정 L · M · Q · H,
+ * 마스크 8가지 중 벌점이 가장 낮은 것, 형식 · 버전 정보 비트는 표준(ISO/IEC 18004)대로.
+ * ES5 문법만 쓴다. 외부 라이브러리 · 네트워크 없음.
+ */
+(function () {
+  'use strict';
+
+  var MAX_VERSION = 15;
+  // 오류 정정 단계: 표 색인 · 형식 비트
+  var ECC = {
+    L: { ord: 0, bits: 1 },
+    M: { ord: 1, bits: 0 },
+    Q: { ord: 2, bits: 3 },
+    H: { ord: 3, bits: 2 }
+  };
+  // 블록당 오류 정정 코드워드 수 [단계][버전] (0 번 칸은 쓰지 않음)
+  var ECC_PER_BLOCK = [
+    [-1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22],
+    [-1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24],
+    [-1, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30],
+    [-1, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24]
+  ];
+  // 오류 정정 블록 수 [단계][버전]
+  var NUM_BLOCKS = [
+    [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6],
+    [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10],
+    [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12],
+    [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18]
+  ];
+
+  // ---------- UTF-8 ----------
+  function utf8(str) {
+    var out = [];
+    str = String(str);
+    for (var i = 0; i < str.length; i++) {
+      var c = str.charCodeAt(i);
+      if (c >= 0xD800 && c <= 0xDBFF && i + 1 < str.length) {
+        var c2 = str.charCodeAt(i + 1);
+        if (c2 >= 0xDC00 && c2 <= 0xDFFF) {
+          c = 0x10000 + ((c - 0xD800) << 10) + (c2 - 0xDC00);
+          i++;
+        }
+      }
+      if (c < 0x80) out.push(c);
+      else if (c < 0x800) out.push(0xC0 | (c >> 6), 0x80 | (c & 63));
+      else if (c < 0x10000) out.push(0xE0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+      else out.push(0xF0 | (c >> 18), 0x80 | ((c >> 12) & 63), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+    }
+    return out;
+  }
+
+  // ---------- 용량 계산 ----------
+  function numRawDataModules(ver) {
+    var r = (16 * ver + 128) * ver + 64;
+    if (ver >= 2) {
+      var na = Math.floor(ver / 7) + 2;
+      r -= (25 * na - 10) * na - 55;
+      if (ver >= 7) r -= 36;
+    }
+    return r;
+  }
+  function numDataCodewords(ver, e) {
+    return Math.floor(numRawDataModules(ver) / 8) - ECC_PER_BLOCK[e.ord][ver] * NUM_BLOCKS[e.ord][ver];
+  }
+
+  // ---------- 리드 · 솔로몬 (GF(2^8), 0x11D) ----------
+  function gfMul(x, y) {
+    var z = 0;
+    for (var i = 7; i >= 0; i--) {
+      z = (z << 1) ^ ((z >>> 7) * 0x11D);
+      z ^= ((y >>> i) & 1) * x;
+    }
+    return z;
+  }
+  function rsDivisor(degree) {
+    var res = [];
+    for (var i = 0; i < degree - 1; i++) res.push(0);
+    res.push(1);
+    var root = 1;
+    for (i = 0; i < degree; i++) {
+      for (var j = 0; j < res.length; j++) {
+        res[j] = gfMul(res[j], root);
+        if (j + 1 < res.length) res[j] ^= res[j + 1];
+      }
+      root = gfMul(root, 0x02);
+    }
+    return res;
+  }
+  function rsRemainder(data, div) {
+    var res = [];
+    for (var i = 0; i < div.length; i++) res.push(0);
+    for (i = 0; i < data.length; i++) {
+      var factor = data[i] ^ res.shift();
+      res.push(0);
+      for (var j = 0; j < div.length; j++) res[j] ^= gfMul(div[j], factor);
+    }
+    return res;
+  }
+
+  function addEccAndInterleave(data, ver, e) {
+    var numBlocks = NUM_BLOCKS[e.ord][ver];
+    var eccLen = ECC_PER_BLOCK[e.ord][ver];
+    var raw = Math.floor(numRawDataModules(ver) / 8);
+    var numShort = numBlocks - raw % numBlocks;
+    var shortLen = Math.floor(raw / numBlocks);
+    var blocks = [];
+    var div = rsDivisor(eccLen);
+    var k = 0, i, j;
+    for (i = 0; i < numBlocks; i++) {
+      var dat = data.slice(k, k + shortLen - eccLen + (i < numShort ? 0 : 1));
+      k += dat.length;
+      var ec = rsRemainder(dat, div);
+      if (i < numShort) dat.push(0);
+      blocks.push(dat.concat(ec));
+    }
+    var out = [];
+    for (i = 0; i < blocks[0].length; i++) {
+      for (j = 0; j < blocks.length; j++) {
+        if (i !== shortLen - eccLen || j >= numShort) out.push(blocks[j][i]);
+      }
+    }
+    return out;
+  }
+
+  // ---------- 판 그리기 ----------
+  function Grid(ver) {
+    this.ver = ver;
+    this.size = ver * 4 + 17;
+    this.m = [];
+    this.f = [];
+    for (var y = 0; y < this.size; y++) {
+      var a = [], b = [];
+      for (var x = 0; x < this.size; x++) { a.push(false); b.push(false); }
+      this.m.push(a); this.f.push(b);
+    }
+  }
+  Grid.prototype.setF = function (x, y, dark) { this.m[y][x] = dark; this.f[y][x] = true; };
+
+  function alignPositions(ver) {
+    if (ver === 1) return [];
+    var na = Math.floor(ver / 7) + 2;
+    var size = ver * 4 + 17;
+    var step = Math.ceil((ver * 4 + 4) / (na * 2 - 2)) * 2;
+    var res = [6];
+    for (var pos = size - 7; res.length < na; pos -= step) res.splice(1, 0, pos);
+    return res;
+  }
+
+  function drawFinder(g, cx, cy) {
+    for (var dy = -4; dy <= 4; dy++) {
+      for (var dx = -4; dx <= 4; dx++) {
+        var dist = Math.max(Math.abs(dx), Math.abs(dy));
+        var x = cx + dx, y = cy + dy;
+        if (x >= 0 && x < g.size && y >= 0 && y < g.size) g.setF(x, y, dist !== 2 && dist !== 4);
+      }
+    }
+  }
+  function drawAlign(g, cx, cy) {
+    for (var dy = -2; dy <= 2; dy++)
+      for (var dx = -2; dx <= 2; dx++)
+        g.setF(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+  }
+  function bit(x, i) { return ((x >>> i) & 1) !== 0; }
+
+  function drawFormat(g, e, mask) {
+    var data = (e.bits << 3) | mask;
+    var rem = data;
+    for (var i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+    var bits = ((data << 10) | rem) ^ 0x5412;
+    var s = g.size;
+    for (i = 0; i <= 5; i++) g.setF(8, i, bit(bits, i));
+    g.setF(8, 7, bit(bits, 6));
+    g.setF(8, 8, bit(bits, 7));
+    g.setF(7, 8, bit(bits, 8));
+    for (i = 9; i < 15; i++) g.setF(14 - i, 8, bit(bits, i));
+    for (i = 0; i < 8; i++) g.setF(s - 1 - i, 8, bit(bits, i));
+    for (i = 8; i < 15; i++) g.setF(8, s - 15 + i, bit(bits, i));
+    g.setF(8, s - 8, true); // 늘 검은 칸
+  }
+
+  function drawVersion(g) {
+    if (g.ver < 7) return;
+    var rem = g.ver;
+    for (var i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
+    var bits = (g.ver << 12) | rem;
+    for (i = 0; i < 18; i++) {
+      var b = bit(bits, i);
+      var a = g.size - 11 + i % 3, c = Math.floor(i / 3);
+      g.setF(a, c, b);
+      g.setF(c, a, b);
+    }
+  }
+
+  function drawFunctionPatterns(g, e) {
+    var s = g.size, i, j;
+    for (i = 0; i < s; i++) { g.setF(6, i, i % 2 === 0); g.setF(i, 6, i % 2 === 0); }
+    drawFinder(g, 3, 3);
+    drawFinder(g, s - 4, 3);
+    drawFinder(g, 3, s - 4);
+    var ap = alignPositions(g.ver), n = ap.length;
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < n; j++) {
+        if ((i === 0 && j === 0) || (i === 0 && j === n - 1) || (i === n - 1 && j === 0)) continue;
+        drawAlign(g, ap[i], ap[j]);
+      }
+    }
+    drawFormat(g, e, 0); // 자리만 잡아 둠
+    drawVersion(g);
+  }
+
+  function drawCodewords(g, data) {
+    var i = 0, s = g.size;
+    for (var right = s - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (var vert = 0; vert < s; vert++) {
+        for (var j = 0; j < 2; j++) {
+          var x = right - j;
+          var upward = ((right + 1) & 2) === 0;
+          var y = upward ? s - 1 - vert : vert;
+          if (!g.f[y][x] && i < data.length * 8) {
+            g.m[y][x] = bit(data[i >>> 3], 7 - (i & 7));
+            i++;
+          }
+        }
+      }
+    }
+  }
+
+  function maskBit(mask, x, y) {
+    switch (mask) {
+      case 0: return (x + y) % 2 === 0;
+      case 1: return y % 2 === 0;
+      case 2: return x % 3 === 0;
+      case 3: return (x + y) % 3 === 0;
+      case 4: return (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0;
+      case 5: return (x * y) % 2 + (x * y) % 3 === 0;
+      case 6: return ((x * y) % 2 + (x * y) % 3) % 2 === 0;
+      default: return ((x + y) % 2 + (x * y) % 3) % 2 === 0;
+    }
+  }
+  function applyMask(g, mask) {
+    for (var y = 0; y < g.size; y++)
+      for (var x = 0; x < g.size; x++)
+        if (!g.f[y][x] && maskBit(mask, x, y)) g.m[y][x] = !g.m[y][x];
+  }
+
+  // ---------- 벌점 ----------
+  function penalty(g) {
+    var s = g.size, m = g.m, score = 0, x, y, run, k;
+    // 규칙 1: 같은 색 5칸 이상 연속 (가로 · 세로)
+    for (y = 0; y < s; y++) {
+      run = 1;
+      for (x = 1; x <= s; x++) {
+        if (x < s && m[y][x] === m[y][x - 1]) run++;
+        else { if (run >= 5) score += 3 + (run - 5); run = 1; }
+      }
+    }
+    for (x = 0; x < s; x++) {
+      run = 1;
+      for (y = 1; y <= s; y++) {
+        if (y < s && m[y][x] === m[y - 1][x]) run++;
+        else { if (run >= 5) score += 3 + (run - 5); run = 1; }
+      }
+    }
+    // 규칙 2: 2×2 같은 색
+    for (y = 0; y < s - 1; y++)
+      for (x = 0; x < s - 1; x++) {
+        var c = m[y][x];
+        if (c === m[y][x + 1] && c === m[y + 1][x] && c === m[y + 1][x + 1]) score += 3;
+      }
+    // 규칙 3: 찾기 무늬 비슷한 1:1:3:1:1 (앞 · 뒤 밝은 4칸, 판 밖은 밝은 칸으로 봄)
+    var P1 = [true, false, true, true, true, false, true, false, false, false, false];
+    var P2 = [false, false, false, false, true, false, true, true, true, false, true];
+    function at(yy, xx, horiz) {
+      var a = horiz ? xx : yy, b = horiz ? yy : xx;
+      if (a < 0 || a >= s) return false;
+      return horiz ? m[b][a] : m[a][b];
+    }
+    for (var line = 0; line < s; line++) {
+      for (var horiz = 0; horiz < 2; horiz++) {
+        for (var st = -4; st < s - 6; st++) {
+          var ok1 = true, ok2 = true;
+          for (k = 0; k < 11; k++) {
+            var v = horiz ? at(line, st + k, true) : at(st + k, line, false);
+            if (v !== P1[k]) ok1 = false;
+            if (v !== P2[k]) ok2 = false;
+            if (!ok1 && !ok2) break;
+          }
+          if (ok1) score += 40;
+          if (ok2) score += 40;
+        }
+      }
+    }
+    // 규칙 4: 검은 칸 비율
+    var dark = 0;
+    for (y = 0; y < s; y++) for (x = 0; x < s; x++) if (m[y][x]) dark++;
+    var total = s * s;
+    var kk = Math.ceil(Math.abs(dark * 20 - total * 10) / total) - 1;
+    if (kk > 0) score += kk * 10;
+    return score;
+  }
+
+  // ---------- 부호화 ----------
+  function encode(text, ecc) {
+    var e = ECC[String(ecc || 'M').toUpperCase()];
+    if (!e) throw new Error('TKQR: 오류 정정 단계는 L · M · Q · H 중 하나여야 합니다');
+    var bytes = utf8(text);
+    var ver, ccBits, cap = 0;
+    for (ver = 1; ver <= MAX_VERSION; ver++) {
+      ccBits = ver <= 9 ? 8 : 16;
+      cap = numDataCodewords(ver, e) * 8;
+      if (4 + ccBits + bytes.length * 8 <= cap) break;
+    }
+    if (ver > MAX_VERSION) throw new Error('TKQR: 글이 너무 깁니다(' + bytes.length + '바이트, 버전 ' + MAX_VERSION + ' 넘음)');
+
+    // 비트 열
+    var bb = [];
+    function put(val, len) { for (var i = len - 1; i >= 0; i--) bb.push((val >>> i) & 1); }
+    put(4, 4);                 // 바이트 모드 0100
+    put(bytes.length, ccBits); // 글자 수
+    for (var i = 0; i < bytes.length; i++) put(bytes[i], 8);
+    put(0, Math.min(4, cap - bb.length)); // 끝 표시
+    while (bb.length % 8) bb.push(0);
+    var data = [];
+    for (i = 0; i < bb.length; i += 8) {
+      var b = 0;
+      for (var j = 0; j < 8; j++) b = (b << 1) | bb[i + j];
+      data.push(b);
+    }
+    for (var pad = 0xEC; data.length < cap / 8; pad ^= 0xEC ^ 0x11) data.push(pad);
+
+    var all = addEccAndInterleave(data, ver, e);
+    var g = new Grid(ver);
+    drawFunctionPatterns(g, e);
+    drawCodewords(g, all);
+
+    // 벌점이 가장 낮은 마스크
+    var best = 0, bestScore = Infinity;
+    for (var mk = 0; mk < 8; mk++) {
+      applyMask(g, mk);
+      drawFormat(g, e, mk);
+      var sc = penalty(g);
+      if (sc < bestScore) { bestScore = sc; best = mk; }
+      applyMask(g, mk); // 되돌림 (XOR)
+    }
+    applyMask(g, best);
+    drawFormat(g, e, best);
+
+    return { version: ver, ecc: String(ecc || 'M').toUpperCase(), mask: best, size: g.size, modules: g.m };
+  }
+
+  function matrix(text, ecc) {
+    var r = encode(text, ecc);
+    var out = [];
+    for (var y = 0; y < r.size; y++) out.push(r.modules[y].slice());
+    return out;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function svg(text, opts) {
+    opts = opts || {};
+    var margin = opts.margin == null ? 4 : opts.margin;
+    var px = opts.size == null ? 240 : opts.size;
+    var dark = opts.dark || '#111';
+    var light = opts.light || '#fff';
+    var r = encode(text, opts.ecc || 'M');
+    var n = r.size + margin * 2;
+    var d = [];
+    for (var y = 0; y < r.size; y++) {
+      for (var x = 0; x < r.size; x++) {
+        if (!r.modules[y][x]) continue;
+        // 가로로 이어진 검은 칸은 한 줄로 묶는다
+        var x0 = x;
+        while (x + 1 < r.size && r.modules[y][x + 1]) x++;
+        d.push('M' + (x0 + margin) + ' ' + (y + margin) + 'h' + (x - x0 + 1) + 'v1h-' + (x - x0 + 1) + 'z');
+      }
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 ' + n + ' ' + n +
+      '" shape-rendering="crispEdges"><rect width="' + n + '" height="' + n + '" fill="' + esc(light) + '"/>' +
+      '<path d="' + d.join('') + '" fill="' + esc(dark) + '"/></svg>';
+  }
+
+  var TKQR = { svg: svg, matrix: matrix, encode: encode, utf8: utf8 };
+
+  if (typeof window !== 'undefined') window.TKQR = TKQR;
+  if (typeof module !== 'undefined') module.exports = TKQR;
+})();
+
+</script>
+<script>
+/* 티키타카 파티 — 회의실 무통신 협동 미니게임 5종 (2026-11-22)
+ *   회의실 TV(진행자)와 팀원 휴대폰은 서로 통신하지 않는다. 같은 [방 코드 4자리] · [라운드] (· 역할)를 넣으면
+ *   양쪽이 같은 문제를 만든다(시드 = FNV-1a → mulberry32, cipher.js 의 TKCipher.rng 와 같은 식).
+ *   화면 위쪽에서 [팀원] ↔ [진행자] 를 바로 바꾼다. 확인 코드(3글자)가 같으면 같은 문제를 보고 있는 것.
+ *   주소 값: ?r=방코드 &n=라운드 &m=host|player &g=color|timer|tele|draw|cipher &embed=1(티키타카 안) &mobile=휴대폰용 주소
+ */
+(function () {
+  'use strict';
+  var C = window.TKPartyContent;
+  var Q = function (s, r) { return (r || document).querySelector(s); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+  // ── 시드 ──
+  function fnv(s) { var h = 2166136261; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function rng(seed) { return window.TKCipher && window.TKCipher.rng ? window.TKCipher.rng(seed) : mulberry(fnv(seed)); }
+  function shuffled(arr, seed) { var r = rng(seed), a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  /** 라운드마다 하나 — 방 코드로 섞은 순서에서 (라운드-1) 번째. 20 라운드까지 겹치지 않음 */
+  function nth(list, key) { return shuffled(list, S.room + '|' + key)[(S.round - 1) % list.length]; }
+  function seedOf(key) { return S.room + '|' + S.round + '|' + key; }
+  function checkCode() { return ('00' + (fnv(S.room + '|' + S.round + '|check') % 46656).toString(36).toUpperCase()).slice(-3); }
+  var CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function newRoom() { var s = ''; for (var i = 0; i < 4; i++) s += CODE_CH[Math.floor(Math.random() * CODE_CH.length)]; return s; }
+  function cleanRoom(v) { return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); }
+
+  // ── 상태 ──
+  var P = new URLSearchParams(location.search);
+  var store = { get: function (k) { try { return localStorage.getItem('tkparty.' + k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem('tkparty.' + k, v); } catch (e) { /* 막힘 */ } } };
+  var S = {
+    room: cleanRoom(P.get('r') || store.get('room') || ''),
+    round: Math.max(1, Math.min(99, parseInt(P.get('n') || store.get('round') || '1', 10) || 1)),
+    mode: P.get('m') || store.get('mode') || 'player',
+    game: P.get('g') || store.get('game') || 'color',
+    embed: P.get('embed') === '1',
+    mobile: P.get('mobile') || store.get('mobile') || '',
+    sound: store.get('sound') !== '0',
+  };
+  var GAMES = [
+    { k: 'color', name: '컬러 헌터', short: '컬러', icon: 'drop', tag: '관찰력 · 스피드' },
+    { k: 'timer', name: '블라인드 릴레이 타이머', short: '타이머', icon: 'clock', tag: '호흡 · 전략' },
+    { k: 'tele', name: '한마음 텔레파시', short: '텔레파시', icon: 'bulb', tag: '공감 · 유머' },
+    { k: 'draw', name: '한 획 릴레이 그림', short: '그림', icon: 'pen', tag: '비언어 · 창의력' },
+    { k: 'cipher', name: '조각난 비밀 암호', short: '암호', icon: 'lock', tag: '추리 · 경청' },
+  ];
+  function save() { store.set('room', S.room); store.set('round', String(S.round)); store.set('mode', S.mode); store.set('game', S.game); store.set('sound', S.sound ? '1' : '0'); if (S.mobile) store.set('mobile', S.mobile); }
+
+  // ── 아이콘 (작은 SVG — 이모지 대신) ──
+  var IC = {
+    phone: '<path d="M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm4 17.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>',
+    tv: '<path d="M3 4h18a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-7v2h3v2H7v-2h3v-2H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 2v9h16V6z"/>',
+    drop: '<path d="M12 2s7 7.6 7 12.5A7 7 0 0 1 5 14.5C5 9.6 12 2 12 2z"/>',
+    clock: '<path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm1 3v5.4l3.6 2.1-1 1.7L11 13.5V7z"/>',
+    bulb: '<path d="M12 2a7 7 0 0 1 4 12.7V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3A7 7 0 0 1 12 2zm-3 18h6v2H9z"/>',
+    pen: '<path d="M16.8 3.2a2 2 0 0 1 2.8 0l1.2 1.2a2 2 0 0 1 0 2.8L9 19l-5 1 1-5z"/>',
+    lock: '<path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z"/>',
+    unlock: '<path d="M7 10V7a5 5 0 0 1 9.6-2l-1.8.9A3 3 0 0 0 9 7v3h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1z"/>',
+    sound: '<path d="M4 9h4l5-4v14l-5-4H4zm12.5 3a4.5 4.5 0 0 0-2-3.7v7.4a4.5 4.5 0 0 0 2-3.7z"/>',
+    mute: '<path d="M4 9h4l5-4v14l-5-4H4zm12 .4 1.4-1.4 2.1 2.1 2.1-2.1L23 9.4 20.9 11.5 23 13.6 21.6 15l-2.1-2.1-2.1 2.1-1.4-1.4 2.1-2.1z"/>',
+    full: '<path d="M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zM3 14h2v5h5v2H3zm16 0h2v7h-7v-2h5z"/>',
+    eye: '<path d="M12 5c5 0 9 4.5 10 7-1 2.5-5 7-10 7S3 14.5 2 12c1-2.5 5-7 10-7zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>',
+    eyeOff: '<path d="M3.3 2 22 20.7 20.7 22l-3.4-3.4A11 11 0 0 1 12 19c-5 0-9-4.5-10-7a13 13 0 0 1 4-4.9L2 3.3zM12 5c5 0 9 4.5 10 7a12.6 12.6 0 0 1-2.6 3.6L8.4 4.6A10 10 0 0 1 12 5z"/>',
+    play: '<path d="M7 4v16l13-8z"/>',
+    stop: '<path d="M6 6h12v12H6z"/>',
+    undo: '<path d="M9 4 3 10l6 6v-4h5a4 4 0 0 1 0 8h-2v2h2a6 6 0 0 0 0-12H9z"/>',
+    trash: '<path d="M9 3h6l1 2h4v2H4V5h4zm-3 6h12l-1 12H7z"/>',
+    eraser: '<path d="m15.5 3 6 6-10 10H6l-3.5-3.5zm-1 13 3-3-5-5-3 3z"/>',
+    next: '<path d="M8 4l8 8-8 8-1.4-1.4L13.2 12 6.6 5.4z"/>',
+    back: '<path d="M16 4 8 12l8 8 1.4-1.4L10.8 12l6.6-6.6z"/>',
+    star: '<path d="M12 2l3 7 7.5.6-5.7 5 1.8 7.4L12 18l-6.6 4 1.8-7.4-5.7-5L9 9z"/>',
+    help: '<path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 14a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6zm0-10a4 4 0 0 0-4 4h2a2 2 0 1 1 2 2 1 1 0 0 0-1 1v2h2v-1.2A4 4 0 0 0 12 6z"/>',
+    qr: '<path d="M3 3h8v8H3zm2 2v4h4V5zm8-2h8v8h-8zm2 2v4h4V5zM3 13h8v8H3zm2 2v4h4v-4zm8-2h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z"/>',
+    file: '<path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5z"/>',
+    close: '<path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/>',
+    sun: '<path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zM11 1h2v3h-2zm0 19h2v3h-2zM1 11h3v2H1zm19 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/>',
+  };
+  function ic(n, cls) { return '<svg class="tp-ic ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">' + (IC[n] || '') + '</svg>'; }
+
+  // ── 소리 · 진동 · 폭죽 · 화면 꺼짐 방지 ──
+  var AC = null;
+  function ac() { if (!S.sound) return null; try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); return AC; } catch (e) { return null; } }
+  function tone(f, dur, type, vol, at) {
+    var c = ac(); if (!c) return;
+    var t = c.currentTime + (at || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.15));
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + (dur || 0.15) + 0.02);
+  }
+  var SFX = {
+    tap: function () { tone(880, 0.05, 'triangle', 0.08); },
+    tick: function () { tone(1200, 0.06, 'square', 0.06); },
+    beep: function () { tone(660, 0.18, 'sine', 0.22); },
+    go: function () { tone(988, 0.35, 'sine', 0.25); },
+    horn: function () { tone(220, 0.7, 'sawtooth', 0.18); tone(277, 0.7, 'sawtooth', 0.12, 0.02); },
+    win: function () { [523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, 0.5, 'triangle', 0.18, i * 0.09); }); },
+    fail: function () { tone(196, 0.35, 'sawtooth', 0.15); tone(147, 0.45, 'sawtooth', 0.13, 0.18); },
+    reveal: function () { tone(392, 0.12, 'triangle', 0.15); tone(523, 0.12, 'triangle', 0.15, 0.1); tone(784, 0.3, 'triangle', 0.2, 0.2); },
+  };
+  function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* 없음 */ } }
+  var FX = { cv: null, parts: [], raf: 0 };
+  function confetti(n) {
+    if (!FX.cv) { FX.cv = document.createElement('canvas'); FX.cv.className = 'tp-confetti'; document.body.appendChild(FX.cv); }
+    var cv = FX.cv, dpr = window.devicePixelRatio || 1;
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    var cols = ['#ffd43b', '#ff6b6b', '#4dabf7', '#69db7c', '#da77f2', '#ff922b', '#ffffff'];
+    for (var i = 0; i < (n || 160); i++) {
+      var side = i % 2 ? 1 : -1;
+      FX.parts.push({ x: side > 0 ? innerWidth * 0.08 : innerWidth * 0.92, y: innerHeight * 0.85, vx: -side * (4 + Math.random() * 9), vy: -(10 + Math.random() * 12), g: 0.32, w: 6 + Math.random() * 6, h: 4 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, c: cols[i % cols.length], life: 150 + Math.random() * 60 });
+    }
+    if (!FX.raf) loopFx();
+  }
+  function loopFx() {
+    var cv = FX.cv, g = cv.getContext('2d'), dpr = window.devicePixelRatio || 1;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
+    FX.parts = FX.parts.filter(function (p) { return p.life > 0 && p.y < innerHeight + 40; });
+    FX.parts.forEach(function (p) {
+      p.vy += p.g; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life--;
+      g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.globalAlpha = Math.min(1, p.life / 30); g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.restore();
+    });
+    FX.raf = FX.parts.length ? requestAnimationFrame(loopFx) : 0;
+    if (!FX.raf) g.clearRect(0, 0, cv.width, cv.height);
+  }
+  function win(msg) { SFX.win(); buzz([60, 40, 120]); confetti(180); if (msg) toast(msg, 'win'); }
+  var WL = null;
+  function wake() {
+    if (!('wakeLock' in navigator)) { setWakeBadge(false); return; }
+    navigator.wakeLock.request('screen').then(function (l) { WL = l; setWakeBadge(true); l.addEventListener('release', function () { setWakeBadge(false); }); }).catch(function () { setWakeBadge(false); });
+  }
+  function setWakeBadge(on) { var b = Q('#tpWake'); if (b) { b.classList.toggle('on', on); b.title = on ? '화면 꺼짐 방지 켜짐' : '화면 꺼짐 방지를 쓸 수 없습니다 — 휴대폰 설정에서 화면 꺼짐 시간을 늘려 주세요'; } }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && S.room) wake(); });
+  function toast(t, kind) {
+    var el = document.createElement('div'); el.className = 'tp-toast ' + (kind || ''); el.textContent = t; document.body.appendChild(el);
+    setTimeout(function () { el.classList.add('out'); }, 2200); setTimeout(function () { el.remove(); }, 2700);
+  }
+
+  // ── 뼈대 ──
+  var root = null, cur = null;
+  function shell() {
+    root = Q('#tkparty');
+    root.className = 'tp ' + S.mode + (S.embed ? ' embed' : '');
+    root.innerHTML =
+      '<header class="tp-top">' +
+        '<div class="tp-brand">' + ic('star') + '<b>티키타카 파티</b></div>' +
+        '<button class="tp-roomchip" id="tpRoom" title="방 코드 · 라운드 바꾸기"></button>' +
+        '<span class="tp-grow"></span>' +
+        '<button class="tp-iconbtn" id="tpWake" title="화면 꺼짐 방지">' + ic('sun') + '</button>' +
+        '<button class="tp-iconbtn" id="tpSound" title="소리 켜기 · 끄기">' + ic(S.sound ? 'sound' : 'mute') + '</button>' +
+        (S.mode === 'host' ? '<button class="tp-iconbtn" id="tpFull" title="전체 화면">' + ic('full') + '</button>' : '') +
+        '<div class="tp-mode" role="tablist" aria-label="화면 바꾸기">' +
+          '<button role="tab" data-mode="player" class="' + (S.mode === 'player' ? 'on' : '') + '">' + ic('phone') + '<span>팀원</span></button>' +
+          '<button role="tab" data-mode="host" class="' + (S.mode === 'host' ? 'on' : '') + '">' + ic('tv') + '<span>진행자</span></button>' +
+        '</div>' +
+      '</header>' +
+      '<nav class="tp-tabs" role="tablist" aria-label="게임">' + GAMES.map(function (g, i) {
+        return '<button role="tab" data-game="' + g.k + '" class="' + (S.game === g.k ? 'on' : '') + '"><span class="tp-tn">' + (i + 1) + '</span>' + ic(g.icon) + '<span class="tp-tl">' + g.short + '</span></button>';
+      }).join('') + '</nav>' +
+      '<main class="tp-main" id="tpMain"></main>';
+    roomChip();
+    if (!root._tpBound) { root._tpBound = true; root.addEventListener('click', onTop); }
+    if (!S.room) setup(); else openGame(S.game);
+    if (S.room) wake();
+  }
+  function roomChip() {
+    var b = Q('#tpRoom'); if (!b) return;
+    b.innerHTML = S.room ? '<span class="k">방</span><b>' + esc(S.room) + '</b><span class="k">라운드</span><b>' + S.round + '</b><span class="tp-check" title="이 세 글자가 진행자 화면과 같으면 같은 문제를 보고 있는 것입니다">확인 ' + checkCode() + '</span>' : '<span class="k">방 코드 넣기</span>';
+  }
+  function onTop(e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.mode) { if (S.mode !== b.dataset.mode) { S.mode = b.dataset.mode; save(); unmount(); shell(); } return; }
+    if (b.dataset.game) { if (!S.room) { setup(); return; } SFX.tap(); openGame(b.dataset.game); return; }
+    if (b.id === 'tpRoom') { setup(); return; }
+    if (b.id === 'tpSound') { S.sound = !S.sound; save(); b.innerHTML = ic(S.sound ? 'sound' : 'mute'); if (S.sound) SFX.beep(); return; }
+    if (b.id === 'tpWake') { wake(); toast(WL ? '화면 꺼짐 방지 켜짐' : '이 브라우저는 화면 꺼짐 방지를 못 씁니다 — 휴대폰 화면 꺼짐 시간을 늘려 주세요'); return; }
+    if (b.id === 'tpFull') { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (err) { /* 막힘 */ } return; }
+  }
+  function unmount() { if (cur && cur.off) try { cur.off(); } catch (e) { /* 무시 */ } cur = null; }
+  function openGame(k) {
+    unmount();
+    S.game = GAMES.some(function (g) { return g.k === k; }) ? k : 'color'; save();
+    root.querySelectorAll('.tp-tabs [data-game]').forEach(function (x) { x.classList.toggle('on', x.dataset.game === S.game); });
+    var g = GAMES.filter(function (x) { return x.k === S.game; })[0];
+    var main = Q('#tpMain');
+    main.innerHTML = '<section class="tp-game g-' + g.k + '"><div class="tp-ghead"><h2>' + ic(g.icon) + g.name + '</h2><span class="tp-gtag">' + g.tag + '</span><span class="tp-grow"></span>' +
+      (S.mode === 'host' ? '<button class="tp-btn ghost" id="tpNextRound">라운드 ' + (S.round + 1) + ' ' + ic('next') + '</button>' : '') +
+      '<button class="tp-btn ghost sm" id="tpHow">' + ic('help') + '어떻게 해요?</button></div>' +
+      '<div class="tp-how" id="tpHowBox" hidden>' + HOW[g.k].map(function (l) { return '<p>' + l + '</p>'; }).join('') + '</div>' +
+      '<div class="tp-gbody" id="tpBody"></div></section>';
+    Q('#tpHow').onclick = function () { var h = Q('#tpHowBox'); h.hidden = !h.hidden; };
+    var nr = Q('#tpNextRound'); if (nr) nr.onclick = function () { S.round = Math.min(99, S.round + 1); save(); roomChip(); SFX.go(); toast('라운드 ' + S.round + ' — 팀원도 라운드를 ' + S.round + ' 로 바꿔 주세요'); openGame(S.game); };
+    cur = (S.mode === 'host' ? HOST : PLAYER)[g.k](Q('#tpBody')) || null;
+    main.scrollTop = 0;
+  }
+  var HOW = {
+    color: ['진행자가 30초를 시작하면, 화면의 색과 가장 비슷한 물건을 사무실에서 찾아 오세요.', '휴대폰 [전체 화면으로 비교] 를 켜고 물건을 화면 옆에 대 보세요.', '진행자가 가장 비슷한 사람을 고릅니다.'],
+    timer: ['진행자가 목표 합산 시간을 알려 줍니다(예: 30.00초).', '3~4명이 차례로 [시작] → [정지]. 2초가 지나면 숫자가 ??.?? 로 가려집니다.', '앞 사람 기록을 듣고 "방금 길었으니 짧게!" 처럼 작전을 짜세요. 진행자가 기록을 더해 오차를 봅니다.'],
+    tele: ['모두 같은 질문을 봅니다. 각자 답을 적고 [가리기] 로 숨겨 두세요.', '진행자가 "하나, 둘, 셋!" 하면 일제히 [공개] — 전광판처럼 크게 보여 줍니다.', '같은 답이 많을수록 한마음!'],
+    draw: ['휴대폰 한 대를 돌립니다. 1번(출제자)만 제시어를 봅니다.', '1번이 5초 동안 밑그림 → 2번 · 3번이 5초씩 더 그립니다. 말 · 글자는 금지!', '마지막 사람이 그림을 보고 제시어를 외치면, 진행자가 [정답 공개] 로 확인합니다.'],
+    cipher: ['3~4명이 각자 역할 번호(1~4번)를 고르면, 서로 다른 단서 카드가 하나씩 나옵니다.', '화면을 보여 주면 안 됩니다. 말로만 단서를 나누어 4자리 암호를 맞히세요.', '암호를 넣고 [확인] — 맞으면 잠금이 풀립니다. 막히면 진행자가 힌트를 줍니다.'],
+  };
+
+  // ── 방 코드 · 라운드 ──
+  function setup() {
+    unmount();
+    var main = Q('#tpMain');
+    var host = S.mode === 'host';
+    main.innerHTML = '<section class="tp-setup">' +
+      (host
+        ? '<h2>진행자 — 방 만들기</h2><p class="tp-muted">방 코드와 라운드를 팀원에게 알려 주세요. 서로 통신하지 않고 같은 문제를 만듭니다.</p>' +
+          '<div class="tp-bigcode" id="tpCodeShow">' + esc(S.room || '----') + '</div>' +
+          '<div class="tp-row"><button class="tp-btn primary lg" id="tpNew">' + ic('star') + (S.room ? '새 방 코드' : '방 만들기') + '</button>' + (S.room ? '<button class="tp-btn lg" id="tpGo">' + ic('play') + '이 방으로 시작</button>' : '') + '</div>'
+        : '<h2>팀원 — 방 들어가기</h2><p class="tp-muted">회의실 화면(진행자)에 보이는 방 코드 4글자와 라운드를 넣으세요.</p>') +
+      '<label class="tp-field"><span>방 코드</span><input id="tpCode" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="예: QX7P" value="' + esc(S.room) + '"></label>' +
+      '<div class="tp-field"><span>라운드</span><div class="tp-stepper"><button class="tp-btn" data-st="-1">−</button><b id="tpRound">' + S.round + '</b><button class="tp-btn" data-st="1">+</button></div></div>' +
+      (host ? '' : '<button class="tp-btn primary lg wide" id="tpJoin">' + ic('play') + '들어가기</button>') +
+      (host ? mobileBox() : '<p class="tp-tip">' + ic('sun') + '시작하면 화면 꺼짐 방지를 켭니다. 소리도 함께 나요.</p>') +
+      '</section>';
+    var code = Q('#tpCode');
+    code.oninput = function () { code.value = cleanRoom(code.value); };
+    main.querySelectorAll('[data-st]').forEach(function (b) { b.onclick = function () { S.round = Math.max(1, Math.min(99, S.round + Number(b.dataset.st))); Q('#tpRound').textContent = S.round; }; });
+    var go = function () {
+      var v = cleanRoom(code.value);
+      if (v.length !== 4) { toast('방 코드 4글자를 넣으세요', 'bad'); code.focus(); return; }
+      S.room = v; save(); roomChip(); SFX.go(); wake(); openGame(S.game);
+    };
+    if (Q('#tpJoin')) Q('#tpJoin').onclick = go;
+    if (Q('#tpGo')) Q('#tpGo').onclick = go;
+    if (Q('#tpNew')) Q('#tpNew').onclick = function () { var v = newRoom(); code.value = v; Q('#tpCodeShow').textContent = v; S.round = 1; Q('#tpRound').textContent = 1; S.room = v; save(); roomChip(); SFX.beep(); setup(); };
+    code.onkeydown = function (e) { if (e.key === 'Enter') go(); };
+    if (host) bindMobileBox();
+    if (!host) setTimeout(function () { code.focus(); }, 50);
+  }
+  /** 진행자 — 휴대폰에서 여는 길 (QR · 주소 · 파일) */
+  function mobileBox() {
+    var url = mobileUrl();
+    return '<div class="tp-mobile"><h3>' + ic('qr') + '휴대폰에서 열기</h3>' +
+      (url ? '<div class="tp-qr" id="tpQr"></div><div class="tp-url">' + esc(url) + '</div>' : '<p class="tp-muted">휴대폰용 주소가 아직 없습니다. 아래에 넣거나, 파일로 나눠 주세요.</p>') +
+      '<label class="tp-field"><span>휴대폰용 주소</span><input id="tpMobileUrl" placeholder="https://…/tikitaka_party.html" value="' + esc(S.mobile) + '"></label>' +
+      '<p class="tp-muted tp-small">휴대폰은 사내 포탈에 못 들어옵니다. 바깥에서 열리는 주소(정적 웹 호스팅)에 휴대폰용 한 장 파일을 올려 두고 그 주소를 넣으면 QR 이 생깁니다. 파일 하나(약 110KB)라 데이터가 아주 조금 들고, 연 뒤에는 게임 내내 통신하지 않습니다.</p>' +
+      '<div class="tp-row"><a class="tp-btn" id="tpFile" href="tikitaka_party.html" download="tikitaka_party.html">' + ic('file') + '휴대폰용 파일 받기</a></div></div>';
+  }
+  function mobileUrl() {
+    if (!S.mobile) return '';
+    try { var u = new URL(S.mobile); if (S.room) { u.searchParams.set('r', S.room); u.searchParams.set('n', String(S.round)); } return u.toString(); } catch (e) { return ''; }
+  }
+  function bindMobileBox() {
+    var inp = Q('#tpMobileUrl');
+    if (inp) inp.onchange = function () { S.mobile = inp.value.trim(); save(); setup(); };
+    var q = Q('#tpQr');
+    if (q) { var u = mobileUrl(); q.innerHTML = window.TKQR ? window.TKQR.svg(u, { ecc: 'M', margin: 2, size: 200 }) : '<div class="tp-muted">QR 을 만들지 못했습니다</div>'; }
+  }
+
+  // ── 공용 조각 ──
+  function countdown(sec, onTick, onEnd) {
+    var end = performance.now() + sec * 1000, last = -1, raf = 0, stopped = false;
+    function f() {
+      if (stopped) return;
+      var left = Math.max(0, end - performance.now()), s = Math.ceil(left / 1000);
+      if (s !== last) { last = s; onTick(s, left); }
+      if (left <= 0) { onEnd(); return; }
+      raf = requestAnimationFrame(f);
+    }
+    f();
+    return { stop: function () { stopped = true; cancelAnimationFrame(raf); } };
+  }
+  function ring(sec, total) { var p = total ? sec / total : 0, C2 = 2 * Math.PI * 54; return '<svg class="tp-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="bg"/><circle cx="60" cy="60" r="54" class="fg" stroke-dasharray="' + C2 + '" stroke-dashoffset="' + (C2 * (1 - p)) + '"/></svg>'; }
+  function fitText(el, max, min) { var s = max; el.style.fontSize = s + 'px'; while ((el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) && s > min) { s -= 2; el.style.fontSize = s + 'px'; } }
+  function roundLevel() { return S.round <= 2 ? 'easy' : S.round <= 4 ? 'normal' : 'hard'; }
+  var LEVEL_KO = { easy: '쉬움', normal: '보통', hard: '어려움' };
+
+  // ══ 게임 1. 컬러 헌터 ══
+  function colorOf() { var c = nth(C.colors, 'color'); var hex = c[1]; return { name: c[0], hex: hex, rgb: [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)] }; }
+  function inkOn(rgb) { return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 150 ? '#111' : '#fff'; }
+  var HOST = {}, PLAYER = {};
+  HOST.color = function (body) {
+    var c = colorOf(), cd = null;
+    body.innerHTML = '<div class="tp-split"><div class="tp-swatch big" style="background:' + c.hex + ';color:' + inkOn(c.rgb) + '"><b>' + esc(c.name) + '</b><span>' + c.hex + ' · RGB ' + c.rgb.join(', ') + '</span></div>' +
+      '<div class="tp-timerbox"><div class="tp-ringwrap" id="tpRing">' + ring(30, 30) + '<b id="tpSec">30</b></div><div class="tp-row"><button class="tp-btn primary lg" id="tpStart">' + ic('play') + '30초 시작</button><button class="tp-btn lg" id="tpReset">다시</button></div><p class="tp-muted" id="tpMsg">팀원 화면에도 같은 색이 보입니다. 시작하면 찾으러 가요!</p></div></div>';
+    function reset() { if (cd) cd.stop(); Q('#tpRing').innerHTML = ring(30, 30) + '<b id="tpSec">30</b>'; Q('#tpMsg').textContent = '팀원 화면에도 같은 색이 보입니다. 시작하면 찾으러 가요!'; body.classList.remove('urgent'); }
+    Q('#tpStart').onclick = function () {
+      reset(); SFX.go(); buzz(80);
+      cd = countdown(30, function (s) {
+        Q('#tpRing').innerHTML = ring(s, 30) + '<b id="tpSec">' + s + '</b>';
+        if (s <= 5 && s > 0) { SFX.tick(); body.classList.add('urgent'); }
+      }, function () { SFX.horn(); buzz([200, 100, 200]); body.classList.remove('urgent'); Q('#tpMsg').innerHTML = '<b>그만!</b> 찾은 물건을 들고 화면 옆에 대 보세요. 가장 비슷한 사람에게 박수!'; Q('#tpRing').innerHTML = ring(0, 30) + '<b id="tpSec">0</b>'; });
+    };
+    Q('#tpReset').onclick = reset;
+    return { off: function () { if (cd) cd.stop(); } };
+  };
+  PLAYER.color = function (body) {
+    var c = colorOf();
+    body.innerHTML = '<div class="tp-swatch" style="background:' + c.hex + ';color:' + inkOn(c.rgb) + '"><b>' + esc(c.name) + '</b><span>' + c.hex + '</span></div>' +
+      '<button class="tp-btn primary lg wide" id="tpFullColor">' + ic('full') + '전체 화면으로 비교</button><p class="tp-tip">' + ic('sun') + '화면 밝기를 최대로 올리면 더 정확해요. 물건을 화면 옆에 대 보세요.</p>';
+    Q('#tpFullColor').onclick = function () {
+      var o = document.createElement('div'); o.className = 'tp-fullcolor'; o.style.background = c.hex; o.style.color = inkOn(c.rgb);
+      o.innerHTML = '<span>' + esc(c.name) + ' · ' + c.hex + ' — 누르면 닫혀요</span>';
+      o.onclick = function () { o.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { /* 무시 */ } };
+      document.body.appendChild(o);
+      try { o.requestFullscreen && o.requestFullscreen(); } catch (e) { /* 막힘 */ }
+      SFX.tap(); wake();
+    };
+  };
+
+  // ══ 게임 2. 블라인드 릴레이 타이머 ══
+  function targetSec() { var r = rng(seedOf('timer')); return 20 + Math.floor(r() * 41) * 0.5; } // 20.0 ~ 40.0, 0.5 단위
+  function fmt(t) { return t.toFixed(2); }
+  HOST.timer = function (body) {
+    var target = targetSec(), n = Number(store.get('runners') || 4);
+    function draw() {
+      body.innerHTML = '<div class="tp-target"><span>목표 합산 시간</span><b>' + fmt(target) + '<small>초</small></b></div>' +
+        '<div class="tp-row center"><span class="tp-muted">주자 수</span>' + [3, 4].map(function (k) { return '<button class="tp-btn ' + (k === n ? 'primary' : '') + '" data-n="' + k + '">' + k + '명</button>'; }).join('') + '</div>' +
+        '<div class="tp-runners">' + Array.apply(null, { length: n }).map(function (_, i) { return '<label class="tp-runner"><span>' + (i + 1) + '번 주자</span><input inputmode="decimal" data-i="' + i + '" placeholder="0.00"><em>초</em></label>'; }).join('') + '</div>' +
+        '<div class="tp-row center"><button class="tp-btn primary lg" id="tpCalc">' + ic('star') + '결과 보기</button><button class="tp-btn lg" id="tpClr">지우기</button></div>' +
+        '<div class="tp-result" id="tpRes"></div>';
+      body.querySelectorAll('[data-n]').forEach(function (b) { b.onclick = function () { n = Number(b.dataset.n); store.set('runners', String(n)); draw(); }; });
+      Q('#tpClr').onclick = function () { body.querySelectorAll('.tp-runner input').forEach(function (x) { x.value = ''; }); Q('#tpRes').innerHTML = ''; };
+      Q('#tpCalc').onclick = function () {
+        var vals = Array.prototype.map.call(body.querySelectorAll('.tp-runner input'), function (x) { return parseFloat(String(x.value).replace(',', '.')); });
+        if (vals.some(function (v) { return !isFinite(v); })) { toast('주자 기록을 모두 넣어 주세요', 'bad'); return; }
+        var sum = vals.reduce(function (a, b) { return a + b; }, 0), err = sum - target, ae = Math.abs(err);
+        var grade = ae <= 0.3 ? ['완벽한 호흡!', 'g-top'] : ae <= 1 ? ['훌륭해요!', 'g-good'] : ae <= 3 ? ['아깝다!', 'g-mid'] : ['다음엔 더 잘할 수 있어요', 'g-low'];
+        var box = Q('#tpRes');
+        box.innerHTML = '<div class="tp-drum">두구두구…</div>'; SFX.tick();
+        setTimeout(function () {
+          box.innerHTML = '<div class="tp-sum ' + grade[1] + '"><div><span>합계</span><b>' + fmt(sum) + '초</b></div><div><span>오차</span><b>' + (err >= 0 ? '+' : '−') + fmt(ae) + '초</b></div><strong>' + grade[0] + '</strong></div>';
+          if (ae <= 1) win(); else if (ae > 3) SFX.fail(); else SFX.reveal();
+        }, 1100);
+      };
+    }
+    draw();
+  };
+  PLAYER.timer = function (body) {
+    var target = targetSec(), st = 'idle', t0 = 0, el = 0, raf = 0;
+    body.innerHTML = '<div class="tp-target sm"><span>팀 목표 합산</span><b>' + fmt(target) + '<small>초</small></b></div>' +
+      '<div class="tp-watch" id="tpWatch">0.00</div><p class="tp-muted center" id="tpWHint">시작 후 2초가 지나면 숫자가 가려져요</p>' +
+      '<div class="tp-row center"><button class="tp-btn primary xl" id="tpSW">' + ic('play') + '시작</button></div>' +
+      '<div class="tp-row center"><button class="tp-btn lg" id="tpReveal" hidden>' + ic('eye') + '기록 공개</button><button class="tp-btn lg" id="tpAgain" hidden>다시</button></div>';
+    var w = Q('#tpWatch'), btn = Q('#tpSW');
+    function frame() { el = (performance.now() - t0) / 1000; w.textContent = el < 2 ? fmt(el) : '??.??'; w.classList.toggle('blind', el >= 2); raf = requestAnimationFrame(frame); }
+    btn.onclick = function () {
+      if (st === 'idle') { st = 'run'; t0 = performance.now(); SFX.go(); buzz(40); btn.innerHTML = ic('stop') + '정지'; btn.classList.add('danger'); raf = requestAnimationFrame(frame); wake(); }
+      else if (st === 'run') { st = 'stop'; cancelAnimationFrame(raf); el = (performance.now() - t0) / 1000; SFX.beep(); buzz(60); w.textContent = '??.??'; w.classList.add('blind'); btn.hidden = true; Q('#tpReveal').hidden = false; Q('#tpAgain').hidden = false; Q('#tpWHint').textContent = '진행자가 부르면 [기록 공개] — 내 기록을 소리 내어 알려 주세요'; }
+    };
+    Q('#tpReveal').onclick = function () { w.textContent = fmt(el); w.classList.remove('blind'); w.classList.add('shown'); SFX.reveal(); };
+    Q('#tpAgain').onclick = function () { st = 'idle'; w.textContent = '0.00'; w.className = 'tp-watch'; btn.hidden = false; btn.innerHTML = ic('play') + '시작'; btn.classList.remove('danger'); Q('#tpReveal').hidden = true; Q('#tpAgain').hidden = true; Q('#tpWHint').textContent = '시작 후 2초가 지나면 숫자가 가려져요'; };
+    return { off: function () { cancelAnimationFrame(raf); } };
+  };
+
+  // ══ 게임 3. 한마음 텔레파시 ══
+  HOST.tele = function (body) {
+    var q = nth(C.telepathy, 'tele');
+    body.innerHTML = '<div class="tp-board"><span class="tp-qn">질문</span><div class="tp-q" id="tpQ">' + esc(q) + '</div></div>' +
+      '<div class="tp-row center"><button class="tp-btn primary xl" id="tpCall">' + ic('play') + '하나, 둘, 셋 — 공개!</button></div>' +
+      '<div class="tp-row center" id="tpJudge" hidden><button class="tp-btn lg good" id="tpSame">' + ic('star') + '모두 같아요!</button><button class="tp-btn lg" id="tpAlmost">아깝다</button></div>';
+    fitText(Q('#tpQ'), 64, 22);
+    Q('#tpCall').onclick = function () {
+      var o = document.createElement('div'); o.className = 'tp-callout'; document.body.appendChild(o);
+      ['하나', '둘', '셋', '공개!'].forEach(function (w2, i) { setTimeout(function () { o.textContent = w2; o.classList.remove('pop'); void o.offsetWidth; o.classList.add('pop'); if (i < 3) SFX.beep(); else { SFX.go(); buzz(120); } }, i * 800); });
+      setTimeout(function () { o.remove(); Q('#tpJudge').hidden = false; }, 3600);
+    };
+    Q('#tpSame').onclick = function () { win('한마음!'); };
+    Q('#tpAlmost').onclick = function () { SFX.fail(); };
+  };
+  PLAYER.tele = function (body) {
+    var q = nth(C.telepathy, 'tele');
+    body.innerHTML = '<div class="tp-board sm"><span class="tp-qn">질문</span><div class="tp-q">' + esc(q) + '</div></div>' +
+      '<div class="tp-answer" id="tpAnsBox"><textarea id="tpAns" maxlength="24" rows="2" placeholder="내 답 (24자까지)"></textarea><div class="tp-cover" id="tpCover" hidden>' + ic('eyeOff') + '<b>가려 둠</b><span>진행자 "셋!" 에 [공개]</span></div></div>' +
+      '<div class="tp-row center"><button class="tp-btn lg" id="tpHide">' + ic('eyeOff') + '가리기</button><button class="tp-btn primary lg" id="tpShow">' + ic('eye') + '공개!</button></div>';
+    var cover = Q('#tpCover');
+    Q('#tpHide').onclick = function () { cover.hidden = !cover.hidden; Q('#tpHide').innerHTML = cover.hidden ? ic('eyeOff') + '가리기' : ic('eye') + '다시 보기'; SFX.tap(); };
+    cover.onclick = function () { cover.hidden = true; Q('#tpHide').innerHTML = ic('eyeOff') + '가리기'; };
+    Q('#tpShow').onclick = function () {
+      var t = Q('#tpAns').value.trim();
+      if (!t) { toast('먼저 답을 적어 주세요', 'bad'); return; }
+      var o = document.createElement('div'); o.className = 'tp-billboard'; o.innerHTML = '<div class="tp-bb-q">' + esc(q) + '</div><div class="tp-bb-a" id="tpBB">' + esc(t) + '</div><div class="tp-bb-x">누르면 닫혀요</div>';
+      o.onclick = function () { o.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { /* 무시 */ } };
+      document.body.appendChild(o); try { o.requestFullscreen && o.requestFullscreen(); } catch (e) { /* 막힘 */ }
+      setTimeout(function () { fitText(Q('#tpBB'), 220, 40); }, 60);
+      SFX.reveal(); buzz(80);
+    };
+  };
+
+  // ══ 게임 4. 한 획 릴레이 그림 ══
+  var DRAW_SEC = 5, GUESS_SEC = 20;
+  HOST.draw = function (body) {
+    var wd = nth(C.drawing, 'draw'), cd = null;
+    body.innerHTML = '<div class="tp-board"><span class="tp-qn">제시어</span><div class="tp-q tp-secret" id="tpWord">' + esc(wd) + '</div><div class="tp-veil" id="tpVeil">' + ic('lock') + '<b>정답은 가려 둠</b><span>1번(출제자) 휴대폰에만 보입니다</span></div></div>' +
+      '<div class="tp-row center"><button class="tp-btn lg" id="tpGuess">' + ic('clock') + '맞히기 ' + GUESS_SEC + '초</button><button class="tp-btn primary xl" id="tpOpen">' + ic('eye') + '정답 공개</button></div>' +
+      '<div class="tp-row center" id="tpJ" hidden><button class="tp-btn lg good" id="tpRight">' + ic('star') + '맞혔다!</button><button class="tp-btn lg" id="tpWrong">아쉽다</button></div><p class="tp-muted center" id="tpGMsg"></p>';
+    fitText(Q('#tpWord'), 72, 24);
+    Q('#tpOpen').onclick = function () { var v = Q('#tpVeil'); var open = !v.hidden; v.hidden = open; Q('#tpOpen').innerHTML = open ? ic('eyeOff') + '다시 가리기' : ic('eye') + '정답 공개'; if (open) { SFX.reveal(); Q('#tpJ').hidden = false; } };
+    Q('#tpGuess').onclick = function () { if (cd) cd.stop(); SFX.go(); cd = countdown(GUESS_SEC, function (s) { Q('#tpGMsg').textContent = '맞히기 ' + s + '초'; if (s <= 3 && s > 0) SFX.tick(); }, function () { SFX.horn(); Q('#tpGMsg').textContent = '시간 끝! 정답을 공개해 보세요'; }); };
+    Q('#tpRight').onclick = function () { win('정답!'); };
+    Q('#tpWrong').onclick = function () { SFX.fail(); };
+    return { off: function () { if (cd) cd.stop(); } };
+  };
+  PLAYER.draw = function (body) {
+    var wd = nth(C.drawing, 'draw'), turn = 0, drawers = Number(store.get('drawers') || 3), cd = null;
+    var PEN = ['#1f2937', '#e03131', '#1971c2', '#2f9e44', '#f08c00', '#9c36b5'];
+    var pen = { c: PEN[0], w: 6, erase: false };
+    var strokes = [];
+    body.innerHTML = '<div class="tp-drawhead"><div class="tp-stage" id="tpStage"></div><div class="tp-row"><span class="tp-muted">그리는 사람</span>' + [2, 3, 4].map(function (k) { return '<button class="tp-btn sm ' + (k === drawers ? 'primary' : '') + '" data-dn="' + k + '">' + k + '명</button>'; }).join('') + '</div></div>' +
+      '<div class="tp-canvaswrap"><canvas id="tpCv"></canvas><div class="tp-cvlock" id="tpLock" hidden></div><div class="tp-cvtimer" id="tpCT" hidden></div></div>' +
+      '<div class="tp-tools" id="tpTools">' + PEN.map(function (c, i) { return '<button class="tp-sw ' + (i === 0 ? 'on' : '') + '" data-c="' + c + '" style="background:' + c + '" aria-label="색"></button>'; }).join('') +
+      '<button class="tp-btn sm" data-w="4">가늘게</button><button class="tp-btn sm" data-w="12">굵게</button><button class="tp-btn sm" id="tpEr">' + ic('eraser') + '지우개</button><button class="tp-btn sm" id="tpUndo">' + ic('undo') + '</button><button class="tp-btn sm" id="tpClear">' + ic('trash') + '처음부터</button></div>';
+    var cv = Q('#tpCv'), wrap = cv.parentNode, g = cv.getContext('2d'), active = false, drawing = null;
+    function fit() { var r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1; cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); cv.style.width = r.width + 'px'; cv.style.height = r.height + 'px'; redraw(); }
+    function redraw() {
+      var dpr = window.devicePixelRatio || 1, W = cv.width / dpr, H = cv.height / dpr;
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+      strokes.forEach(function (s) { g.strokeStyle = s.erase ? '#fff' : s.c; g.lineWidth = s.w * (s.erase ? 3 : 1); g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); s.p.forEach(function (p, i) { var x = p[0] * W, y = p[1] * H; if (i) g.lineTo(x, y); else g.moveTo(x, y); }); if (s.p.length === 1) g.lineTo(s.p[0][0] * W + 0.1, s.p[0][1] * H); g.stroke(); });
+    }
+    function pt(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; }
+    cv.addEventListener('pointerdown', function (e) { if (!active) return; e.preventDefault(); cv.setPointerCapture(e.pointerId); drawing = { c: pen.c, w: pen.w, erase: pen.erase, p: [pt(e)] }; strokes.push(drawing); redraw(); });
+    cv.addEventListener('pointermove', function (e) { if (!drawing) return; drawing.p.push(pt(e)); redraw(); });
+    var up = function () { drawing = null; };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    cv.style.touchAction = 'none';
+    Q('#tpTools').onclick = function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.c) { pen.c = b.dataset.c; pen.erase = false; Q('#tpTools').querySelectorAll('.tp-sw').forEach(function (x) { x.classList.toggle('on', x === b); }); Q('#tpEr').classList.remove('on'); }
+      else if (b.dataset.w) pen.w = Number(b.dataset.w);
+      else if (b.id === 'tpEr') { pen.erase = !pen.erase; b.classList.toggle('on', pen.erase); }
+      else if (b.id === 'tpUndo') { strokes.pop(); redraw(); }
+      else if (b.id === 'tpClear') { if (turn <= 1 || confirm('그림을 처음부터 지울까요?')) { strokes = []; redraw(); } }
+    };
+    body.querySelectorAll('[data-dn]').forEach(function (b) { b.onclick = function () { drawers = Number(b.dataset.dn); store.set('drawers', String(drawers)); body.querySelectorAll('[data-dn]').forEach(function (x) { x.classList.toggle('primary', x === b); }); stage(); }; });
+    var peek = false;
+    function stage() {
+      var st = Q('#tpStage'), lock = Q('#tpLock');
+      if (turn === 0) {
+        st.innerHTML = '<div class="tp-role">1번 출제자 차례</div><div class="tp-word ' + (peek ? '' : 'hide') + '" id="tpWordBox">' + (peek ? esc(wd) : '●●●●') + '</div>' +
+          '<div class="tp-row"><button class="tp-btn" id="tpPeek">' + ic(peek ? 'eyeOff' : 'eye') + (peek ? '가리기' : '제시어 보기 (1번만)') + '</button><button class="tp-btn primary" id="tpTurn">' + ic('play') + '그리기 ' + DRAW_SEC + '초</button></div>';
+        Q('#tpPeek').onclick = function () { peek = !peek; SFX.tap(); stage(); };
+        lock.hidden = false; lock.innerHTML = '<b>1번(출제자)만 제시어를 보고</b><span>[그리기 ' + DRAW_SEC + '초] 를 누르세요 · 말 · 글자는 금지!</span>';
+      } else if (turn <= drawers) {
+        st.innerHTML = '<div class="tp-role">' + turn + '번 차례 끝</div><div class="tp-row"><button class="tp-btn primary" id="tpTurn">' + ic('play') + (turn + 1 <= drawers ? (turn + 1) + '번 그리기 ' + DRAW_SEC + '초' : '맞히는 사람에게 보여 주기') + '</button></div>';
+        lock.hidden = false; lock.innerHTML = turn + 1 <= drawers ? '<b>휴대폰을 ' + (turn + 1) + '번에게 넘기세요</b><span>제시어는 보지 말고 그림만 보고 덧그려요</span>' : '<b>맞히는 사람에게 넘기세요</b><span>그림을 보고 제시어를 외쳐요!</span>';
+      } else {
+        st.innerHTML = '<div class="tp-role">맞히는 시간 ' + GUESS_SEC + '초</div><div class="tp-row"><button class="tp-btn" id="tpNewDraw">' + ic('undo') + '새로 하기</button></div>';
+        Q('#tpNewDraw').onclick = function () { if (cd) cd.stop(); turn = 0; peek = false; strokes = []; redraw(); Q('#tpCT').hidden = true; stage(); };
+      }
+      var tb = Q('#tpTurn'); if (tb) tb.onclick = nextTurn;
+    }
+    function nextTurn() {
+      if (turn > drawers) return;
+      if (turn === drawers) { // 맞히기
+        turn++; peek = false; Q('#tpLock').hidden = true; stage(); SFX.go();
+        var ct = Q('#tpCT'); ct.hidden = false;
+        cd = countdown(GUESS_SEC, function (s) { ct.textContent = s; if (s <= 3 && s > 0) SFX.tick(); }, function () { ct.textContent = '끝!'; SFX.horn(); buzz([200, 80, 200]); });
+        return;
+      }
+      turn++; peek = false; active = true; Q('#tpLock').hidden = true; SFX.go(); buzz(50);
+      if (turn === 1) Q('#tpStage').innerHTML = '<div class="tp-role">1번 그리는 중</div>';
+      else Q('#tpStage').innerHTML = '<div class="tp-role">' + turn + '번 그리는 중</div>';
+      pen.c = PEN[(turn - 1) % PEN.length]; Q('#tpTools').querySelectorAll('.tp-sw').forEach(function (x) { x.classList.toggle('on', x.dataset.c === pen.c); });
+      var ct2 = Q('#tpCT'); ct2.hidden = false;
+      cd = countdown(DRAW_SEC, function (s) { ct2.textContent = s; ct2.classList.toggle('hot', s <= 2); if (s <= 3 && s > 0) SFX.tick(); }, function () { active = false; drawing = null; ct2.hidden = true; SFX.horn(); buzz(150); stage(); });
+    }
+    setTimeout(fit, 30);
+    window.addEventListener('resize', fit);
+    stage();
+    return { off: function () { if (cd) cd.stop(); window.removeEventListener('resize', fit); } };
+  };
+
+  // ══ 게임 5. 조각난 비밀 암호 ══
+  var CIPHER = {};
+  function cipher() {
+    var key = seedOf('cipher') + '|' + roundLevel();
+    if (CIPHER[key]) return CIPHER[key];
+    if (!window.TKCipher) return null;
+    return (CIPHER[key] = window.TKCipher.make(seedOf('cipher'), { level: roundLevel() }));
+  }
+  HOST.cipher = function (body) {
+    var d = cipher();
+    if (!d) { body.innerHTML = '<p class="tp-muted">암호 퍼즐 부품(cipher.js)을 읽지 못했습니다.</p>'; return; }
+    var shown = 0;
+    body.innerHTML = '<div class="tp-lockbig" id="tpLockBig">' + ic('lock') + '<div class="tp-code tp-secret" id="tpCodeBig">' + d.code.split('').join(' ') + '</div><div class="tp-veil" id="tpCVeil"><b>● ● ● ●</b><span>난이도 ' + LEVEL_KO[roundLevel()] + ' · 역할 1~4번이 단서를 하나씩 받았습니다</span></div></div>' +
+      '<div class="tp-row center"><button class="tp-btn lg" id="tpHint">' + ic('bulb') + '힌트 1 보기</button><button class="tp-btn lg" id="tpClues">' + ic('eye') + '단서 모두 보기</button><button class="tp-btn primary xl" id="tpAns">' + ic('unlock') + '정답 보기</button></div>' +
+      '<div class="tp-hints" id="tpHints"></div><ol class="tp-allclues" id="tpAll" hidden>' + d.clues.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ol>';
+    Q('#tpHint').onclick = function () {
+      if (shown >= d.hints.length) return;
+      Q('#tpHints').insertAdjacentHTML('beforeend', '<div class="tp-hint"><b>힌트 ' + (shown + 1) + '</b>' + esc(d.hints[shown]) + '</div>'); shown++; SFX.reveal();
+      Q('#tpHint').innerHTML = shown >= d.hints.length ? '힌트 끝' : ic('bulb') + '힌트 ' + (shown + 1) + ' 보기';
+      if (shown >= d.hints.length) Q('#tpHint').disabled = true;
+    };
+    Q('#tpClues').onclick = function () { var a = Q('#tpAll'); a.hidden = !a.hidden; };
+    Q('#tpAns').onclick = function () { var v = Q('#tpCVeil'), open = !v.hidden; v.hidden = open; Q('#tpLockBig').classList.toggle('open', open); Q('#tpAns').innerHTML = open ? ic('lock') + '다시 가리기' : ic('unlock') + '정답 보기'; if (open) { SFX.reveal(); } };
+  };
+  PLAYER.cipher = function (body) {
+    var d = cipher();
+    if (!d) { body.innerHTML = '<p class="tp-muted">암호 퍼즐 부품(cipher.js)을 읽지 못했습니다.</p>'; return; }
+    var role = Number(store.get('role.' + seedOf('cipher')) || 0), entry = '', tries = 0, solved = false;
+    function draw() {
+      if (!role) {
+        body.innerHTML = '<p class="tp-lead">내 역할 번호를 고르세요 <span class="tp-muted">(사람마다 다른 번호)</span></p><div class="tp-roles">' + [1, 2, 3, 4].map(function (k) { return '<button class="tp-rolebtn" data-role="' + k + '"><b>' + k + '</b><span>번</span></button>'; }).join('') + '</div>' +
+          '<p class="tp-tip">' + ic('eyeOff') + '단서는 나만 봅니다. 화면을 보여 주지 말고 말로만 나눠요.</p>';
+        body.querySelectorAll('[data-role]').forEach(function (b) { b.onclick = function () { role = Number(b.dataset.role); store.set('role.' + seedOf('cipher'), String(role)); SFX.tap(); draw(); }; });
+        return;
+      }
+      body.innerHTML = '<div class="tp-clue"><span class="tp-clue-k">' + role + '번 단서 · 난이도 ' + LEVEL_KO[roundLevel()] + '</span><p>' + esc(d.clues[role - 1]) + '</p><button class="tp-btn sm ghost" id="tpRole">역할 바꾸기</button></div>' +
+        '<div class="tp-slots ' + (solved ? 'ok' : '') + '" id="tpSlots">' + [0, 1, 2, 3].map(function (i) { return '<span class="' + (i < entry.length ? 'on' : '') + '">' + (entry[i] || '') + '</span>'; }).join('') + '</div>' +
+        (solved ? '<div class="tp-unlocked">' + ic('unlock') + '<b>잠금 해제!</b><span>' + tries + '번 만에 풀었어요</span></div>'
+          : '<div class="tp-pad" id="tpPad">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, 'back', 0, 'ok'].map(function (k) { return '<button data-k="' + k + '" class="' + (k === 'ok' ? 'ok' : k === 'back' ? 'back' : '') + '">' + (k === 'back' ? ic('back') : k === 'ok' ? '확인' : k) + '</button>'; }).join('') + '</div>') +
+        (tries && !solved ? '<p class="tp-muted center">시도 ' + tries + '번</p>' : '');
+      Q('#tpRole').onclick = function () { role = 0; store.set('role.' + seedOf('cipher'), '0'); draw(); };
+      var pad = Q('#tpPad');
+      if (pad) pad.onclick = function (e) {
+        var b = e.target.closest('[data-k]'); if (!b) return;
+        var k = b.dataset.k;
+        if (k === 'back') entry = entry.slice(0, -1);
+        else if (k === 'ok') {
+          if (entry.length < 4) { toast('네 자리를 넣으세요', 'bad'); return; }
+          tries++;
+          if (entry === d.code) { solved = true; draw(); win('잠금 해제!'); return; }
+          SFX.fail(); buzz([80, 60, 80]); var sl = Q('#tpSlots'); sl.classList.remove('shake'); void sl.offsetWidth; sl.classList.add('shake'); entry = ''; setTimeout(draw, 450); return;
+        } else if (entry.length < 4) entry += k;
+        SFX.tap(); draw();
+      };
+    }
+    draw();
+  };
+
+  // ── 시작 ──
+  window.TKParty = { start: shell, seed: { fnv: fnv, rng: rng, nth: function (list, key) { return nth(list, key); } }, state: S, checkCode: checkCode };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', shell); else shell();
+})();
+
+</script>
+</body>
+</html>
