@@ -1,0 +1,11 @@
+{
+  "room": "DEMO",
+  "round": 1,
+  "game": "color",
+  "updatedAt": "2026-11-22T05:22:51Z",
+  "scores": [
+    { "name": "신나는 수달", "score": 96 },
+    { "name": "졸린 여우", "score": 88 },
+    { "name": "명랑한 곰", "score": 71 }
+  ]
+}
