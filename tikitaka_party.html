@@ -323,6 +323,10 @@ body.tp-shake { animation: tp-cel-shake 0.5s; }
 @keyframes tp-miss-stamp { 0% { transform: rotate(-12deg) scale(2.6); opacity: 0; } 18% { transform: rotate(-12deg) scale(0.92); opacity: 1; } 26% { transform: rotate(-12deg) scale(1); } 80% { opacity: 1; } 100% { transform: rotate(-12deg) scale(1); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .tp-cel-rays, .tp-cel-roll, .tp-cel-face i, .tp-cel-title, body.tp-shake { animation: none !important; } }
 
+/* 11-22 — 숨김은 언제나 숨김(.tp-row 의 display 가 hidden 을 덮던 것: 텔레파시 [모두 같아요] · 그림 [맞혔다] 가 공개 전에 보임) · 축하 흔들림 때 스크롤 막대 안 뜨게 */
+[hidden] { display: none !important; }
+html:has(body.tp-shake) { overflow: hidden; }
+
 </style>
 </head>
 <body data-single="1">
