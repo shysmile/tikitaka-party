@@ -258,6 +258,15 @@ label.tp-btn { position: relative; }
 .tp-sb-list li.m1 .tp-sb-rk { background: #f59e0b; color: #fff; } .tp-sb-list li.m2 .tp-sb-rk { background: #94a3b8; color: #fff; } .tp-sb-list li.m3 .tp-sb-rk { background: #b45309; color: #fff; }
 .tp-sb-x { border: 0; background: none; color: var(--tp-muted); cursor: pointer; }
 
+/* 점수 중계 (11-22) */
+.tp-send { display: flex; gap: 8px; width: 100%; margin-top: 8px; }
+.tp-send input { flex: 1; min-width: 0; height: 44px; padding: 0 12px; border: 1px solid var(--tp-line); border-radius: 10px; background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 16px; }
+.tp-sb-auto-st { margin-left: auto; padding: 3px 10px; border-radius: 12px; font-size: 13px; background: rgba(255, 255, 255, 0.08); color: var(--tp-muted); }
+.tp-sb-auto-st.on { background: rgba(34, 197, 94, 0.18); color: #86efac; }
+.tp-sb-auto-st.off { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
+.tp-sb-auto { color: #86efac; display: inline-flex; }
+.tp-sb-list li.new { animation: tp-pop 0.5s ease-out; box-shadow: 0 0 0 2px #86efac inset; }
+
 </style>
 </head>
 <body data-single="1">
@@ -1278,6 +1287,17 @@ label.tp-btn { position: relative; }
   function newRoom() { var s = ''; for (var i = 0; i < 4; i++) s += CODE_CH[Math.floor(Math.random() * CODE_CH.length)]; return s; }
   function cleanRoom(v) { return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); }
 
+  // ── 점수 중계 (11-22 사용자 'Cloudflare Workers — 방 코드별로 점수만 받아 볼게') ──
+  //   휴대폰 → POST {relay}/score · 진행자 ← GET {relay}/scores. 이름(닉네임)과 점수만. 닿지 않으면 불러 넣기로
+  var DEFAULT_RELAY = 'https://tikitaka-relay.shysmile.workers.dev';
+  function relayPost(game, value) {
+    return fetch(S.relay + '/score', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room: S.room, round: S.round, game: game, name: S.name, value: value }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok || !j.ok) throw new Error(j.error || ('HTTP ' + r.status)); return j; }); });
+  }
+  function relayGet(game) {
+    return fetch(S.relay + '/scores?room=' + encodeURIComponent(S.room) + '&round=' + S.round + '&game=' + game, { cache: 'no-store' })
+      .then(function (r) { return r.json(); }).then(function (j) { if (!j.ok) throw new Error(j.error || '읽지 못함'); return j.scores || []; });
+  }
   // ── 상태 ──
   var P = new URLSearchParams(location.search);
   var store = { get: function (k) { try { return localStorage.getItem('tkparty.' + k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem('tkparty.' + k, v); } catch (e) { /* 막힘 */ } } };
@@ -1289,6 +1309,8 @@ label.tp-btn { position: relative; }
     embed: P.get('embed') === '1',
     mobile: P.get('mobile') || store.get('mobile') || '',
     sound: store.get('sound') !== '0',
+    relay: (P.get('relay') || store.get('relay') || DEFAULT_RELAY).replace(/\/$/, ''),
+    name: store.get('name') || '',
   };
   var GAMES = [
     { k: 'color', name: '컬러 헌터', short: '컬러', icon: 'drop', tag: '관찰력 · 스피드' },
@@ -1326,6 +1348,7 @@ label.tp-btn { position: relative; }
     qr: '<path d="M3 3h8v8H3zm2 2v4h4V5zm8-2h8v8h-8zm2 2v4h4V5zM3 13h8v8H3zm2 2v4h4v-4zm8-2h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z"/>',
     file: '<path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5z"/>',
     close: '<path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/>',
+    check: '<path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>',
     camera: '<path d="M9 4h6l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.5zm3 4.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zm0 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/>',
     sun: '<path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zM11 1h2v3h-2zm0 19h2v3h-2zM1 11h3v2H1zm19 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/>',
   };
@@ -1531,24 +1554,39 @@ label.tp-btn { position: relative; }
     body.innerHTML = '<div class="tp-split"><div class="tp-swatch big" style="background:' + c.hex + ';color:' + inkOn(c.rgb) + '"><b>' + esc(c.name) + '</b><span>' + c.hex + ' · RGB ' + c.rgb.join(', ') + '</span></div>' +
       '<div class="tp-timerbox"><div class="tp-ringwrap" id="tpRing">' + ring(30, 30) + '<b id="tpSec">30</b></div><div class="tp-row"><button class="tp-btn primary lg" id="tpStart">' + ic('play') + '30초 시작</button><button class="tp-btn lg" id="tpReset">다시</button></div><p class="tp-muted" id="tpMsg">팀원 화면에도 같은 색이 보입니다. 시작하면 찾으러 가요!</p></div></div>' +
       // 11-22 사용자 '휴대폰 카메라로 찍은 것으로 채점은 못해?' — 팀원 휴대폰 [카메라로 채점] 점수를 진행자가 받아 적는 점수판
-      '<div class="tp-sb"><div class="tp-sb-head"><b>' + ic('star') + '점수판</b><span class="tp-muted">팀원이 휴대폰 [카메라로 채점] 점수를 불러 주면 넣으세요</span></div>' +
+      '<div class="tp-sb"><div class="tp-sb-head"><b>' + ic('star') + '점수판</b><span class="tp-muted">휴대폰 [점수판에 올리기] 는 저절로 들어오고, 불러 주는 점수는 손으로 넣어요</span></div>' +
       '<div class="tp-sb-add"><input id="tpSbName" placeholder="이름" maxlength="10"><input id="tpSbScore" inputmode="numeric" placeholder="점수" maxlength="3"><button class="tp-btn" id="tpSbAdd">더하기</button><button class="tp-btn good" id="tpSbWin">' + ic('star') + '1등 축하</button></div>' +
       '<ol class="tp-sb-list" id="tpSbList"></ol></div>';
-    var board = [];
-    function drawBoard() {
-      board.sort(function (a, b) { return b.s - a.s; });
-      Q('#tpSbList').innerHTML = board.map(function (x, i) { return '<li class="' + (i < 3 ? 'm' + (i + 1) : '') + '"><span class="tp-sb-rk">' + (i + 1) + '</span><b>' + esc(x.n) + '</b><em>' + x.s + '점</em><button class="tp-sb-x" data-i="' + i + '" aria-label="빼기">' + ic('close') + '</button></li>'; }).join('');
+    var board = [], remote = [], seen = {}, poll = 0;
+    function merged() {
+      var m = {}; remote.forEach(function (x) { m[x.name] = { n: x.name, s: Math.round(x.value), r: true }; });
+      board.forEach(function (x) { m[x.n] = { n: x.n, s: x.s }; });
+      return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.s - a.s; });
     }
+    function drawBoard() {
+      var all = merged();
+      Q('#tpSbList').innerHTML = all.map(function (x, i) { return '<li class="' + (i < 3 ? 'm' + (i + 1) : '') + (seen[x.n] ? '' : ' new') + '"><span class="tp-sb-rk">' + (i + 1) + '</span><b>' + esc(x.n) + '</b>' + (x.r ? '<span class="tp-sb-auto" title="휴대폰에서 바로 올라옴">' + ic('phone') + '</span>' : '') + '<em>' + x.s + '점</em>' + (x.r ? '' : '<button class="tp-sb-x" data-n="' + esc(x.n) + '" aria-label="빼기">' + ic('close') + '</button>') + '</li>'; }).join('');
+      all.forEach(function (x) { seen[x.n] = 1; });
+    }
+    function pull() {
+      relayGet('color').then(function (list) {
+        var before = remote.length; remote = list; Q('#tpSbAuto').className = 'tp-sb-auto-st on'; Q('#tpSbAuto').textContent = '휴대폰 점수 자동으로 받는 중 · ' + list.length + '명';
+        if (list.length > before) SFX.tap();
+        drawBoard();
+      }).catch(function () { Q('#tpSbAuto').className = 'tp-sb-auto-st off'; Q('#tpSbAuto').textContent = '점수 중계 서버에 닿지 않아요 — 불러 주는 점수를 넣어 주세요'; });
+    }
+    Q('.tp-sb-head').insertAdjacentHTML('beforeend', '<span class="tp-sb-auto-st" id="tpSbAuto">점수 중계 확인 중…</span>');
+    pull(); poll = setInterval(pull, 3000);
     function addScore() {
       var n = Q('#tpSbName').value.trim(), v = parseInt(Q('#tpSbScore').value, 10);
       if (!n || !(v >= 0 && v <= 100)) { toast('이름과 0~100 점수를 넣으세요', 'bad'); return; }
-      board.push({ n: n, s: v }); Q('#tpSbName').value = ''; Q('#tpSbScore').value = ''; Q('#tpSbName').focus(); SFX.tap(); drawBoard();
+      board = board.filter(function (x) { return x.n !== n; }); board.push({ n: n, s: v }); Q('#tpSbName').value = ''; Q('#tpSbScore').value = ''; Q('#tpSbName').focus(); SFX.tap(); drawBoard();
     }
     Q('#tpSbAdd').onclick = addScore;
     Q('#tpSbScore').onkeydown = function (e) { if (e.key === 'Enter') addScore(); };
     Q('#tpSbName').onkeydown = function (e) { if (e.key === 'Enter') Q('#tpSbScore').focus(); };
-    Q('#tpSbList').onclick = function (e) { var x = e.target.closest('[data-i]'); if (x) { board.splice(Number(x.dataset.i), 1); drawBoard(); } };
-    Q('#tpSbWin').onclick = function () { if (!board.length) { toast('점수를 먼저 넣으세요', 'bad'); return; } win('1등 ' + board[0].n + ' — ' + board[0].s + '점!'); };
+    Q('#tpSbList').onclick = function (e) { var x = e.target.closest('[data-n]'); if (x) { board = board.filter(function (y) { return y.n !== x.dataset.n; }); drawBoard(); } };
+    Q('#tpSbWin').onclick = function () { var all = merged(); if (!all.length) { toast('점수를 먼저 넣으세요', 'bad'); return; } win('1등 ' + all[0].n + ' — ' + all[0].s + '점!'); };
     function reset() { if (cd) cd.stop(); Q('#tpRing').innerHTML = ring(30, 30) + '<b id="tpSec">30</b>'; Q('#tpMsg').textContent = '팀원 화면에도 같은 색이 보입니다. 시작하면 찾으러 가요!'; body.classList.remove('urgent'); }
     Q('#tpStart').onclick = function () {
       reset(); SFX.go(); buzz(80);
@@ -1558,7 +1596,7 @@ label.tp-btn { position: relative; }
       }, function () { SFX.horn(); buzz([200, 100, 200]); body.classList.remove('urgent'); Q('#tpMsg').innerHTML = '<b>그만!</b> 휴대폰 [카메라로 채점] 점수를 불러 주세요 — 점수판에 넣으면 순위가 나와요'; Q('#tpRing').innerHTML = ring(0, 30) + '<b id="tpSec">0</b>'; });
     };
     Q('#tpReset').onclick = reset;
-    return { off: function () { if (cd) cd.stop(); } };
+    return { off: function () { if (cd) cd.stop(); clearInterval(poll); } };
   };
   // ── 카메라 색 채점 (11-22) — 조준 원 안의 색(밝기 가운데 60% 평균)을 목표 색과 CIEDE2000 으로 견줘 0~100점 ──
   function lin(v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
@@ -1651,6 +1689,16 @@ label.tp-btn { position: relative; }
         '<div class="tp-sc-num"><b>' + res.score + '</b><small>점</small></div><strong>' + g[0] + '</strong><span class="tp-muted">색 차이 ΔE ' + res.de.toFixed(1) + ' · 찍은 색 ' + res.hex + '</span></div>';
       if (res.score >= 85) win(g[0]); else if (res.score >= 60) SFX.reveal(); else SFX.fail();
       Q('#tpCam').innerHTML = ic('camera') + '다시 찍기';
+      var card = Q('#tpScore .tp-scorecard');
+      card.insertAdjacentHTML('beforeend', '<div class="tp-send"><input id="tpMyName" maxlength="12" placeholder="내 이름(닉네임)" value="' + esc(S.name) + '"><button class="tp-btn primary" id="tpSend">' + ic('next') + '점수판에 올리기</button></div><div class="tp-muted tp-small" id="tpSendMsg">진행자 화면 점수판에 바로 올라가요 · 이름과 점수만 보냅니다</div>');
+      Q('#tpSend').onclick = function () {
+        var n = Q('#tpMyName').value.trim();
+        if (!n) { toast('이름을 넣으세요', 'bad'); Q('#tpMyName').focus(); return; }
+        S.name = n; store.set('name', n);
+        Q('#tpSend').disabled = true; Q('#tpSendMsg').textContent = '보내는 중…';
+        relayPost('color', res.score).then(function () { Q('#tpSendMsg').innerHTML = '<b>' + ic('check') + '올렸어요!</b> 진행자 화면 점수판을 보세요'; Q('#tpSend').innerHTML = ic('check') + '올림'; SFX.go(); buzz(60); })
+          .catch(function (e) { Q('#tpSend').disabled = false; Q('#tpSendMsg').textContent = '보내지 못했어요(' + e.message + ') — 점수를 진행자에게 불러 주세요'; SFX.fail(); });
+      };
     }
     Q('#tpCam').onclick = function () { openCam(c, showScore, function () { Q('#tpShot').click(); }); };
     Q('#tpShot').onchange = function () {
