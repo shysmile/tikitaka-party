@@ -42,6 +42,16 @@ button, input, textarea { font: inherit; color: inherit; }
 .tp.host .tp-tabs button { flex-direction: row; justify-content: center; gap: 8px; padding: 10px; font-size: 16px; font-weight: 600; }
 .tp.host .tp-tn { position: static; font-size: 12px; padding: 1px 7px; border-radius: 10px; background: rgba(255, 255, 255, 0.1); opacity: 1; }
 .tp.host .tp-main { padding: 18px 24px 30px; }
+/* 탭 · 단추 글자는 줄을 바꾸지 않는다 (11-23 사용자 '모바일에서 진행자로 열면 6 점 / 심 처럼 다음 줄로') */
+.tp-tabs .tp-tl, .tp-btn, .tp-mode button { white-space: nowrap; }
+.tp-tabs .tp-tl { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+/* 휴대폰 폭에서 진행자로 열면 — 탭은 팀원 화면처럼 아이콘 위 · 글자 아래(위 고정은 그대로) */
+@media (max-width: 760px) {
+  .tp.host .tp-tabs { gap: 4px; padding: 6px 8px; }
+  .tp.host .tp-tabs button { flex-direction: column; gap: 2px; padding: 6px 2px; font-size: 11px; font-weight: 600; min-width: 0; }
+  .tp.host .tp-tn { position: absolute; top: 3px; right: 6px; font-size: 9px; padding: 0; background: none; opacity: 0.6; }
+  .tp.host .tp-main { padding: 14px 14px 30px; }
+}
 /* 단추 */
 .tp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px; padding: 0 16px; border: 1px solid var(--tp-line); border-radius: 12px; background: rgba(255, 255, 255, 0.08); color: var(--tp-text); cursor: pointer; font-weight: 600; text-decoration: none; user-select: none; }
 .tp-btn:active { transform: scale(0.97); }
@@ -1779,11 +1789,14 @@ html:has(body.tp-shake) { overflow: hidden; }
       all.forEach(function (x) { seen[x.n] = 1; });
     }
     function pull() {
+      // 답을 기다리는 사이 다른 게임으로 옮겼으면(점수판이 사라짐) 그만 받는다
+      var gone = function () { if (Q('#tpSbAuto')) return false; clearInterval(poll); return true; };
       relayGet('color').then(function (list) {
+        if (gone()) return;
         var before = remote.length; remote = list; Q('#tpSbAuto').className = 'tp-sb-auto-st on'; Q('#tpSbAuto').textContent = '휴대폰 점수 자동으로 받는 중 · ' + list.length + '명';
         if (list.length > before) SFX.tap();
         drawBoard();
-      }).catch(function () { Q('#tpSbAuto').className = 'tp-sb-auto-st off'; Q('#tpSbAuto').textContent = '점수 중계 서버에 닿지 않아요 — 불러 주는 점수를 넣어 주세요'; });
+      }).catch(function () { if (gone()) return; Q('#tpSbAuto').className = 'tp-sb-auto-st off'; Q('#tpSbAuto').textContent = '점수 중계 서버에 닿지 않아요 — 불러 주는 점수를 넣어 주세요'; });
     }
     Q('.tp-sb-head').insertAdjacentHTML('beforeend', '<span class="tp-sb-auto-st" id="tpSbAuto">점수 중계 확인 중…</span>');
     pull(); poll = setInterval(pull, 3000);
