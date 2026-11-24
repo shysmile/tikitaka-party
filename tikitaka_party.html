@@ -86,6 +86,67 @@ button, input, textarea { font: inherit; color: inherit; }
 .tp-stepper { display: inline-flex; align-items: center; gap: 14px; }
 .tp-stepper b { min-width: 40px; text-align: center; font-size: 28px; color: #fff; }
 .tp-mobile { margin-top: 18px; padding: 16px; border-radius: 14px; background: rgba(0, 0, 0, 0.2); }
+/* 6번 점심 · 커피 (11-24) */
+.tp-lc-tabs { display: flex; justify-content: center; gap: 6px; margin: 0 auto 14px; padding: 4px; width: fit-content; border-radius: 14px; background: rgba(255, 255, 255, 0.06); }
+.tp-lc-tabs button { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 16px; border: 0; border-radius: 11px; background: none; color: var(--tp-muted); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.tp-lc-tabs button .tp-ic { width: 18px; height: 18px; }
+.tp-lc-tabs button.on { background: linear-gradient(135deg, var(--tp-pri), var(--tp-pri2)); color: #fff; }
+.tp-cf-who { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 10px auto 6px; max-width: 900px; }
+.tp-cf-who .none { color: var(--tp-muted); font-size: 14px; }
+.tp-cf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid rgba(250, 204, 21, 0.4); border-radius: 16px; background: rgba(250, 204, 21, 0.12); color: #fef3c7; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.tp-cf-chip small { font-size: 11px; font-weight: 500; color: var(--tp-muted); }
+.tp-cf-chip.off { opacity: 0.4; text-decoration: line-through; }
+.tp-cf-add { display: flex; justify-content: center; gap: 8px; margin: 8px auto; max-width: 420px; }
+.tp-cf-add input { flex: 1; min-width: 0; height: 42px; padding: 0 12px; border: 1px solid var(--tp-line); border-radius: 12px; background: rgba(0, 0, 0, 0.25); color: #fff; font: inherit; font-size: 16px; }
+.tp-cf-how { display: flex; justify-content: center; gap: 8px; margin: 12px auto; }
+.tp-cf-how button { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 16px; border: 1px solid var(--tp-line); border-radius: 12px; background: rgba(255, 255, 255, 0.06); color: var(--tp-text); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.tp-cf-how button.on { border-color: transparent; background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+.tp-cf-how.locked button:not(.on) { opacity: 0.35; pointer-events: none; }
+.tp-cf-how.sm { margin: 0 0 0 auto; gap: 4px; }
+.tp-cf-how.sm button { height: 32px; padding: 0 10px; font-size: 13px; }
+.tp-cf-how .tp-ic { width: 16px; height: 16px; }
+.tp-cf-pres { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
+.tp-cf-pinfo { display: flex; align-items: center; gap: 6px; margin: 10px 0; color: var(--tp-muted); font-size: 13px; }
+.tp-cf-pinfo .tp-ic { width: 16px; height: 16px; }
+.tp-ld { display: flex; justify-content: center; margin: 8px auto 12px; padding: 12px; border-radius: 20px; background: rgba(0, 0, 0, 0.2); overflow-x: auto; }
+.tp-ld canvas { display: block; height: auto; }
+/* 진행자 방 준비 (11-24) — 넓으면 왼쪽 방 코드 · 라운드 · [이 방으로 시작] / 오른쪽 QR, 좁으면 위아래 + 시작 단추가 아래에 붙음 */
+.tp.host .tp-setup.tp-hs { max-width: 980px; }
+.tp-hs-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.tp-hs-main .tp-bigcode { margin: 6px 0 10px; }
+.tp-bigcode.dim { opacity: 0.35; }
+.tp-hs-round { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 4px 0 14px; color: var(--tp-muted); font-size: 14px; }
+.tp-hs-go { margin: 10px 0 6px; }
+.tp-hs-side .tp-mobile { margin-top: 0; }
+.tp-hs-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; margin: 6px 0; }
+.tp-linkbtn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 4px; border: 0; background: none; color: var(--tp-muted); font: inherit; font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.tp-linkbtn:hover { color: #fff; }
+.tp-linkbtn .tp-ic { width: 14px; height: 14px; }
+.tp-qr-cap { margin-left: auto; color: var(--tp-muted); font-size: 12px; font-weight: 400; }
+.tp-mob-edit { margin-top: 8px; color: var(--tp-muted); font-size: 13px; }
+.tp-mob-edit summary { cursor: pointer; }
+/* [이 방으로 시작] — 눌러 보고 싶게 숨 쉬는 빛 */
+.tp-go-glow { position: relative; animation: tp-go-breathe 2.2s ease-in-out infinite; }
+@keyframes tp-go-breathe { 0%, 100% { box-shadow: 0 6px 18px rgba(91, 124, 250, 0.35), 0 0 0 0 rgba(140, 160, 255, 0.55); } 50% { box-shadow: 0 8px 26px rgba(91, 124, 250, 0.55), 0 0 0 10px rgba(140, 160, 255, 0); } }
+.tp-go-glow.tp-go-hint { animation: tp-go-shake 0.5s ease-in-out 3, tp-go-breathe 2.2s ease-in-out infinite; }
+@keyframes tp-go-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-1deg); } 75% { transform: translateX(5px) rotate(1deg); } }
+.tp-nudge { position: fixed; z-index: 120; display: flex; align-items: center; gap: 8px; max-width: 320px; padding: 10px 14px; border-radius: 14px; background: #fff; color: #1a1f3d; font-size: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); animation: tp-pop 0.3s ease-out; pointer-events: none; }
+.tp-nudge::after { content: ""; position: absolute; left: 50%; bottom: -8px; margin-left: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: #fff; }
+.tp-nudge.below::after { top: -8px; bottom: auto; border-top: 0; border-bottom: 8px solid #fff; }
+.tp-nudge .tp-ic { width: 18px; height: 18px; color: #5b7cfa; }
+.tp-nudge.out { opacity: 0; transition: opacity 0.4s; }
+@media (prefers-reduced-motion: reduce) { .tp-go-glow, .tp-go-glow.tp-go-hint { animation: none; } }
+@media (max-width: 720px) {
+  /* 방 코드 → 라운드 → 링크 → QR → [이 방으로 시작](아래에 붙음) — QR 을 보다가 바로 누름 */
+  .tp-hs-grid { display: flex; flex-direction: column; gap: 0; }
+  .tp-hs-main { display: contents; }
+  .tp-hs-main .tp-bigcode { order: 1; }
+  .tp-hs-round { order: 2; }
+  .tp-hs-links { order: 3; }
+  #tpOtherBox { order: 4; }
+  .tp-hs-grid .tp-hs-side { order: 5; margin-top: 8px; }
+  .tp-hs-grid .tp-hs-go { order: 6; position: sticky; bottom: 10px; z-index: 5; margin-top: 14px; }
+}
 .tp-mobile h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; font-size: 16px; }
 .tp-qr { width: 200px; height: 200px; margin: 0 auto; padding: 8px; border-radius: 12px; background: #fff; }
 .tp-qr svg { width: 100%; height: 100%; display: block; }
@@ -1547,6 +1608,8 @@ html:has(body.tp-shake) { overflow: hidden; }
     sound: store.get('sound') !== '0',
     relay: (P.get('relay') || store.get('relay') || DEFAULT_RELAY).replace(/\/$/, ''),
     name: store.get('name') || '',
+    lcMode: store.get('lcMode') || 'menu', // 6번 점심 · 커피 — 마지막에 본 쪽
+    cfHow: store.get('cfHow') || 'ladder', // 커피 쏘기 — 사다리 · 룰렛
     via: '', // 중계에 닿는 길 — 'direct' 바로 · 'parent' 포탈이 대신
   };
   var GAMES = [
@@ -1555,7 +1618,9 @@ html:has(body.tp-shake) { overflow: hidden; }
     { k: 'tele', name: '한마음 텔레파시', short: '텔레파시', icon: 'bulb', tag: '공감 · 유머' },
     { k: 'draw', name: '한 획 릴레이 그림', short: '그림', icon: 'pen', tag: '비언어 · 창의력' },
     { k: 'cipher', name: '조각난 비밀 암호', short: '암호', icon: 'lock', tag: '추리 · 경청' },
-    { k: 'lunch', name: '점심 메뉴 고르기', short: '점심', icon: 'bowl', tag: '취향 · 투표' },
+    // 11-24 사용자 "'6. 점심' 은 점심/커피로 — 점심 메뉴를 고르거나, 내 이름(닉네임) 넣은 사람으로 사다리 · 룰렛을 돌려 커피 쏘기 당첨"
+    //   주소 값 g=lunch 는 그대로(예전 QR · 기억한 게임과 맞게)
+    { k: 'lunch', name: '점심 · 커피', short: '점심·커피', icon: 'bowl', tag: '메뉴 고르기 · 커피 쏘기' },
   ];
   function save() {
     store.set('room', S.room); store.set('round', String(S.round)); store.set('mode', S.mode); store.set('game', S.game); store.set('sound', S.sound ? '1' : '0'); if (S.mobile) store.set('mobile', S.mobile);
@@ -1595,6 +1660,9 @@ html:has(body.tp-shake) { overflow: hidden; }
     camera: '<path d="M9 4h6l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.5zm3 4.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zm0 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/>',
     sun: '<path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zM11 1h2v3h-2zm0 19h2v3h-2zM1 11h3v2H1zm19 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/>',
   };
+  IC.coffee = '<path d="M3 8h14v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6zm14 1.5h1.5a3 3 0 0 1 0 6H17v-2h1.5a1 1 0 0 0 0-2H17z"/><path d="M2 21h16v1.5H2z"/><path d="M7.5 1.5c1 1 1 2 0 3s-1 1.6 0 2.5l-1 1c-1.4-1.3-1.4-3 0-4.4.6-.6.6-1 0-1.6zM11.5 1.5c1 1 1 2 0 3s-1 1.6 0 2.5l-1 1c-1.4-1.3-1.4-3 0-4.4.6-.6.6-1 0-1.6z"/>';
+  IC.ladder = '<path d="M6 2h2v20H6zm10 0h2v20h-2zM8 5h8v2H8zm0 6h8v2H8zm0 6h8v2H8z"/>';
+  IC.users = '<path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 9c0-3.3 3.1-6 7-6s7 2.7 7 6v1H2zm15-9a3.5 3.5 0 1 0-1.1-6.8A5.5 5.5 0 0 1 17 11zm1 2.2c2.4.6 4 2.5 4 4.8v1h-4.1A7.6 7.6 0 0 0 18 13.2z"/>';
   IC.bowl = '<path d="M2 11h20a10 9 0 0 1-20 0z"/><path d="M6 20.5h12V22H6z"/><path d="M8.2 2.6c1.3 1.3 1.3 2.5 0 3.7-.9.9-.9 1.7 0 2.6l-1 1c-1.4-1.4-1.4-3.1 0-4.6.8-.8.8-1.4 0-2.2zM12.2 2.6c1.3 1.3 1.3 2.5 0 3.7-.9.9-.9 1.7 0 2.6l-1 1c-1.4-1.4-1.4-3.1 0-4.6.8-.8.8-1.4 0-2.2zM16.2 2.6c1.3 1.3 1.3 2.5 0 3.7-.9.9-.9 1.7 0 2.6l-1 1c-1.4-1.4-1.4-3.1 0-4.6.8-.8.8-1.4 0-2.2z"/>';
   function ic(n, cls) { return '<svg class="tp-ic ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">' + (IC[n] || '') + '</svg>'; }
 
@@ -1749,7 +1817,7 @@ html:has(body.tp-shake) { overflow: hidden; }
     if (b.id === 'tpWake') { wake(); toast(WL ? '화면 꺼짐 방지 켜짐' : '이 브라우저는 화면 꺼짐 방지를 못 씁니다 — 휴대폰 화면 꺼짐 시간을 늘려 주세요'); return; }
     if (b.id === 'tpFull') { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (err) { /* 막힘 */ } return; }
   }
-  function unmount() { if (cur && cur.off) try { cur.off(); } catch (e) { /* 무시 */ } cur = null; }
+  function unmount() { if (typeof hostNudgeOff === 'function') hostNudgeOff(); if (cur && cur.off) try { cur.off(); } catch (e) { /* 무시 */ } cur = null; }
   function openGame(k) {
     unmount();
     S.game = GAMES.some(function (g) { return g.k === k; }) ? k : 'color'; save();
@@ -1772,14 +1840,15 @@ html:has(body.tp-shake) { overflow: hidden; }
     tele: ['모두 같은 질문을 봅니다. 각자 답을 적고 [가리기] 로 숨겨 두세요.', '진행자가 "하나, 둘, 셋!" 하면 일제히 [공개] — 전광판처럼 크게 보여 줍니다.', '[답 올리기] 를 해 두면 "공개!" 때 진행자 화면에 같은 답끼리 묶어 순위로 보여 줍니다. 같은 답이 많을수록 한마음!'],
     draw: ['휴대폰 한 대를 돌립니다. 1번(출제자)만 제시어를 봅니다.', '1번이 5초 동안 밑그림 → 2번 · 3번이 5초씩 더 그립니다. 말 · 글자는 금지!', '마지막 사람이 그림을 보고 제시어를 외치면, 진행자가 [정답 공개] 로 확인합니다.'],
     cipher: ['3~4명이 각자 역할 번호(1~4번)를 고르면, 서로 다른 단서 카드가 하나씩 나옵니다.', '화면을 보여 주면 안 됩니다. 말로만 단서를 나누어 4자리 암호를 맞히세요.', '암호를 넣고 [확인] — 맞으면 잠금이 풀립니다. 막히면 진행자가 힌트를 줍니다.'],
-    lunch: ['휴대폰에서 시간 · 양 · 온도 · 종류 네 가지 취향을 고르고 [취향 올리기] 를 누릅니다(잘 모르겠으면 \'상관없음\'). 진행자 화면과 방 코드 · 라운드가 같아야 모여요.', '진행자가 [결과 보기] 를 누르면 단계마다 가장 많이 고른 쪽으로 메뉴를 거릅니다(룰렛 칸 수만큼 남으면 멈춤 · 8개보다 적어지는 단계는 건너뜀).', '룰렛은 참여 인원에 따라 8~16칸 — 한 사람에 2~4개씩 내 취향에 맞는 메뉴가 들어가고, 비슷한 메뉴(물냉면 · 비빔냉면)는 하나만. 같은 방 · 라운드 · 취향이면 어느 화면에서 돌려도 같은 메뉴가 나와요.'],
+    lunch: ['휴대폰에서 시간 · 양 · 온도 · 종류 네 가지 취향을 고르고 [취향 올리기] 를 누릅니다(잘 모르겠으면 \'상관없음\'). 진행자 화면과 방 코드 · 라운드가 같아야 모여요.', '진행자가 [결과 보기] 를 누르면 단계마다 가장 많이 고른 쪽으로 메뉴를 거릅니다(룰렛 칸 수만큼 남으면 멈춤 · 8개보다 적어지는 단계는 건너뜀).', '룰렛은 참여 인원에 따라 8~16칸 — 한 사람에 2~4개씩 내 취향에 맞는 메뉴가 들어가고, 비슷한 메뉴(물냉면 · 비빔냉면)는 하나만. 같은 방 · 라운드 · 취향이면 어느 화면에서 돌려도 같은 메뉴가 나와요.', '[커피 쏘기] — 휴대폰에서 [커피 뽑기 참가](점심 취향을 올린 사람은 이미 들어감), 진행자는 이름을 더 넣거나 눌러서 뺄 수 있어요. 사다리 · 룰렛 중 골라 한 명을 뽑아요 — 같은 사람이 모였으면 어느 화면 · 어느 방법이든 같은 사람이 나와요.'],
   };
 
   // ── 방 코드 · 라운드 ──
   function setup() {
     unmount();
+    if (S.mode === 'host') { hostSetup(); return; }
     var main = Q('#tpMain');
-    var host = S.mode === 'host';
+    var host = false;
     main.innerHTML = '<section class="tp-setup">' +
       (host
         ? '<h2>진행자 — 방 만들기</h2><p class="tp-muted">방 코드와 라운드를 팀원에게 알려 주세요. 서로 통신하지 않고 같은 문제를 만듭니다.</p>' +
@@ -1806,14 +1875,84 @@ html:has(body.tp-shake) { overflow: hidden; }
     if (host) bindMobileBox();
     if (!host) setTimeout(function () { code.focus(); }, 50);
   }
-  /** 진행자 — 휴대폰에서 여는 길 (QR · 주소 · 파일) */
+  /** 진행자 — 방 준비 (11-24 사용자 '방 코드가 있을 때도 새 방 코드만 색상이 있고 이 방으로 시작은 색상이 없어 눌러야 시작하는 걸 모름 ·
+   *  새 방 코드는 만들 때 한 번만 · QR 찍으려면 아래로 내려야 하는데 이 방으로 시작은 위에 있어 다시 올려야') —
+   *  방이 없으면 큰 [방 만들기] 하나. 방이 있으면 왼쪽(좁으면 위) 방 코드 · 라운드 · 큰 [이 방으로 시작](빛남), 오른쪽(좁으면 아래) QR.
+   *  [새 방 코드] · [다른 코드 넣기] 는 작은 글자 단추로. 좁은 화면은 [이 방으로 시작] 이 아래에 붙어 QR 을 보다가 바로 누름 */
+  function hostSetup() {
+    var main = Q('#tpMain'), has = !!S.room;
+    main.innerHTML = '<section class="tp-setup tp-hs' + (has ? ' has' : '') + '">' +
+      '<h2>진행자 — ' + (has ? '방 준비' : '방 만들기') + '</h2><p class="tp-muted">' + (has ? '팀원이 QR 을 찍거나 방 코드 · 라운드를 넣으면 같은 문제가 나옵니다. 준비되면 [이 방으로 시작].' : '방을 만들면 방 코드와 휴대폰 QR 이 생깁니다. 서로 통신하지 않고 같은 문제를 만듭니다.') + '</p>' +
+      (has
+        ? '<div class="tp-hs-grid"><div class="tp-hs-main">' +
+            '<div class="tp-bigcode" id="tpCodeShow">' + esc(S.room) + '</div>' +
+            '<div class="tp-hs-round"><span>라운드</span><div class="tp-stepper"><button class="tp-btn" data-st="-1" aria-label="라운드 내리기">−</button><b id="tpRound">' + S.round + '</b><button class="tp-btn" data-st="1" aria-label="라운드 올리기">+</button></div></div>' +
+            '<div class="tp-hs-go"><button class="tp-btn primary xl wide tp-go-glow" id="tpGo">' + ic('play') + '이 방으로 시작</button></div>' +
+            '<div class="tp-hs-links"><button class="tp-linkbtn" id="tpNew">' + ic('star') + '새 방 코드</button><button class="tp-linkbtn" id="tpOther">' + ic('next') + '다른 방 코드 넣기</button></div>' +
+            '<label class="tp-field" id="tpOtherBox" hidden><span>방 코드</span><input id="tpCode" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="예: QX7P" value="' + esc(S.room) + '"></label>' +
+          '</div><div class="tp-hs-side">' + mobileBox() + '</div></div>'
+        : '<div class="tp-bigcode dim" id="tpCodeShow">----</div><div class="tp-hs-go"><button class="tp-btn primary xl wide tp-go-glow" id="tpNew">' + ic('star') + '방 만들기</button></div>' +
+          '<div class="tp-hs-links"><button class="tp-linkbtn" id="tpOther">' + ic('next') + '이미 있는 방 코드 넣기</button></div>' +
+          '<label class="tp-field" id="tpOtherBox" hidden><span>방 코드</span><input id="tpCode" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="예: QX7P" value=""></label>' +
+          '<div class="tp-hs-side">' + mobileBox() + '</div>') +
+      '</section>';
+    var code = Q('#tpCode');
+    code.oninput = function () { code.value = cleanRoom(code.value); if (code.value.length === 4 && code.value !== S.room) { S.room = code.value; S.round = 1; save(); roomChip(); setup(); setTimeout(function () { var b = Q('#tpGo'); if (b) b.focus(); }, 30); } };
+    Q('#tpOther').onclick = function () { var bx = Q('#tpOtherBox'); bx.hidden = !bx.hidden; if (!bx.hidden) { code.select(); code.focus(); } };
+    main.querySelectorAll('[data-st]').forEach(function (b) { b.onclick = function () { S.round = Math.max(1, Math.min(99, S.round + Number(b.dataset.st))); Q('#tpRound').textContent = S.round; save(); roomChip(); bindMobileBox(); }; });
+    var go = function () { if (!S.room) return; S.round = S.round || 1; save(); roomChip(); SFX.go(); wake(); hostNudgeOff(); openGame(S.game); };
+    if (Q('#tpGo')) Q('#tpGo').onclick = go;
+    Q('#tpNew').onclick = function () { S.room = newRoom(); S.round = 1; save(); roomChip(); SFX.beep(); setup(); };
+    code.onkeydown = function (e) { if (e.key === 'Enter' && cleanRoom(code.value).length === 4) go(); };
+    bindMobileBox();
+    if (has) hostNudge();
+  }
+  // 커서가 헤매면 [이 방으로 시작] 옆에 말풍선 (티키타카 첫 화면의 방황 힌트와 같은 방식 — 4초 안에 1400px 넘게 · 터치 기기는 없음)
+  var nudgeOff = null;
+  function hostNudgeOff() { if (nudgeOff) { nudgeOff(); nudgeOff = null; } }
+  function hostNudge() {
+    hostNudgeOff();
+    if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
+    var pts = [], shown = false, bubble = null;
+    var onMove = function (e) {
+      var b = Q('#tpGo'); if (!b || !b.isConnected) { hostNudgeOff(); return; }
+      var now = Date.now(); pts.push([now, e.clientX, e.clientY]);
+      while (pts.length && now - pts[0][0] > 4000) pts.shift();
+      if (shown || pts.length < 8) return;
+      var dist = 0, x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (var i = 1; i < pts.length; i++) dist += Math.hypot(pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]);
+      pts.forEach(function (p) { x0 = Math.min(x0, p[1]); x1 = Math.max(x1, p[1]); y0 = Math.min(y0, p[2]); y1 = Math.max(y1, p[2]); });
+      var box = Math.max(1, (x1 - x0) + (y1 - y0));
+      if (dist > 1400 && dist > box * 1.6) {
+        shown = true;
+        var r = b.getBoundingClientRect();
+        bubble = document.createElement('div'); bubble.className = 'tp-nudge';
+        bubble.innerHTML = ic('play') + '<span>준비됐으면 <b>이 방으로 시작</b> 을 눌러요</span>';
+        document.body.appendChild(bubble);
+        var bw = bubble.offsetWidth, bh = bubble.offsetHeight;
+        var top = r.top - bh - 12 < 8 ? r.bottom + 12 : r.top - bh - 12;
+        bubble.style.left = Math.max(8, Math.min(innerWidth - bw - 8, r.left + r.width / 2 - bw / 2)) + 'px';
+        bubble.style.top = top + 'px';
+        bubble.classList.toggle('below', top > r.top);
+        b.classList.add('tp-go-hint');
+        setTimeout(function () { if (bubble) bubble.classList.add('out'); }, 5000);
+        setTimeout(function () { if (bubble) { bubble.remove(); bubble = null; } var b2 = Q('#tpGo'); if (b2) b2.classList.remove('tp-go-hint'); }, 5400);
+      }
+    };
+    var onScroll = function () { if (bubble) { bubble.remove(); bubble = null; } };
+    document.addEventListener('mousemove', onMove);
+    window.addEventListener('scroll', onScroll, true);
+    nudgeOff = function () { document.removeEventListener('mousemove', onMove); window.removeEventListener('scroll', onScroll, true); if (bubble) { bubble.remove(); bubble = null; } };
+  }
+  /** 진행자 — 휴대폰에서 여는 길 (QR · 주소 · 파일). 주소가 있으면 주소 칸 · 설명은 [휴대폰용 주소 바꾸기] 안으로 */
   function mobileBox() {
     var url = mobileUrl();
-    return '<div class="tp-mobile"><h3>' + ic('qr') + '휴대폰에서 열기</h3>' +
-      (url ? '<div class="tp-qr" id="tpQr"></div><div class="tp-url">' + esc(url) + '</div>' : '<p class="tp-muted">휴대폰용 주소가 아직 없습니다. 아래에 넣거나, 파일로 나눠 주세요.</p>') +
-      '<label class="tp-field"><span>휴대폰용 주소</span><input id="tpMobileUrl" placeholder="https://…/tikitaka_party.html" value="' + esc(S.mobile) + '"></label>' +
+    var edit = '<label class="tp-field"><span>휴대폰용 주소</span><input id="tpMobileUrl" placeholder="https://…/tikitaka_party.html" value="' + esc(S.mobile) + '"></label>' +
       '<p class="tp-muted tp-small">휴대폰은 사내 포탈에 못 들어옵니다. 바깥에서 열리는 주소(정적 웹 호스팅)에 휴대폰용 한 장 파일을 올려 두고 그 주소를 넣으면 QR 이 생깁니다. 파일 하나(약 110KB)라 데이터가 아주 조금 들고, 연 뒤에는 게임 내내 통신하지 않습니다.</p>' +
-      '<div class="tp-row"><a class="tp-btn" id="tpFile" href="tikitaka_party.html" download="tikitaka_party.html">' + ic('file') + '휴대폰용 파일 받기</a></div></div>';
+      '<div class="tp-row"><a class="tp-btn" id="tpFile" href="tikitaka_party.html" download="tikitaka_party.html">' + ic('file') + '휴대폰용 파일 받기</a></div>';
+    return '<div class="tp-mobile"><h3>' + ic('qr') + '휴대폰에서 열기' + (url && S.room ? '<span class="tp-qr-cap">카메라로 찍으면 이 방 · 라운드 · 게임으로</span>' : '') + '</h3>' +
+      (url ? (S.room ? '<div class="tp-qr" id="tpQr"></div><div class="tp-url">' + esc(url) + '</div>' : '<p class="tp-muted">방을 만들면 QR 이 생겨요.</p>') + '<details class="tp-mob-edit"><summary>휴대폰용 주소 바꾸기</summary>' + edit + '</details>'
+        : '<p class="tp-muted">휴대폰용 주소가 아직 없습니다. 아래에 넣거나, 파일로 나눠 주세요.</p>' + edit) + '</div>';
   }
   function mobileUrl() {
     if (!S.mobile) return '';
@@ -1830,7 +1969,7 @@ html:has(body.tp-shake) { overflow: hidden; }
     var inp = Q('#tpMobileUrl');
     if (inp) inp.onchange = function () { S.mobile = inp.value.trim(); save(); setup(); };
     var q = Q('#tpQr');
-    if (q) { var u = mobileUrl(); q.innerHTML = window.TKQR ? window.TKQR.svg(u, { ecc: 'M', margin: 2, size: 200 }) : '<div class="tp-muted">QR 을 만들지 못했습니다</div>'; }
+    if (q) { var u = mobileUrl(); q.innerHTML = window.TKQR ? window.TKQR.svg(u, { ecc: 'M', margin: 2, size: 200 }) : '<div class="tp-muted">QR 을 만들지 못했습니다</div>'; var ut = Q('.tp-url'); if (ut) ut.textContent = u; }
   }
 
   // ── 공용 조각 ──
@@ -2425,11 +2564,11 @@ html:has(body.tp-shake) { overflow: hidden; }
 
   /** 게임쇼 원판(티키타카 플러그인 룰렛과 같은 꼴 — 금 테두리 · 전구 · 금 칸막이 · 핀 · 금 허브).
    *  win 칸에 서도록 돌리고, 마지막에 바늘에 걸려 다음 칸까지 넘어갔다가 한 칸 되돌아온다. 반환 { spin(onEnd) } */
-  function luWheel(host, names, win, seed) {
+  function luWheel(host, names, win, seed, hubIc) {
     var n = names.length, seg = 360 / n, W = 720, C2 = W / 2, ROUT = C2 - 6, RIM = 34, R = ROUT - RIM;
     host.innerHTML = '<div class="tp-rl"><span class="tp-rl-spot l"></span><span class="tp-rl-spot r"></span><div class="tp-rl-wrap"><canvas width="' + W + '" height="' + W + '" aria-label="점심 룰렛 원판"></canvas>' +
       '<svg class="tp-rl-pin" viewBox="0 0 60 80" aria-hidden="true"><defs><linearGradient id="tpPinG" x1="0" x2="1"><stop offset="0" stop-color="#fde68a"/><stop offset=".5" stop-color="#f59e0b"/><stop offset="1" stop-color="#b45309"/></linearGradient></defs><path d="M30 78 L6 22 A26 26 0 1 1 54 22 Z" fill="url(#tpPinG)" stroke="#78350f" stroke-width="2"/><circle cx="30" cy="24" r="10" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><circle cx="26" cy="20" r="3" fill="#fff" opacity=".8"/></svg>' +
-      '<div class="tp-rl-hub">' + ic('bowl') + '</div></div></div>';
+      '<div class="tp-rl-hub">' + ic(hubIc || 'bowl') + '</div></div></div>';
     var cv = host.querySelector('canvas'), x = cv.getContext('2d'), pin = host.querySelector('.tp-rl-pin');
     var mk = function (w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     var shade = function (hex, k) { var v = parseInt(hex.slice(1), 16), r0 = v >> 16, g0 = (v >> 8) & 255, b0 = v & 255, f = function (c) { return Math.round(k < 0 ? c * (1 + k) : c + (255 - c) * k); }; return 'rgb(' + f(r0) + ',' + f(g0) + ',' + f(b0) + ')'; };
@@ -2592,7 +2731,7 @@ html:has(body.tp-shake) { overflow: hidden; }
       });
     };
   }
-  HOST.lunch = function (body) {
+  var luMenuHost = function (body) {
     var menus = luMenus(), votes = [], poll = 0, ran = false;
     body.innerHTML = '<div class="tp-board"><span class="tp-qn">오늘 점심</span><div class="tp-q tp-lu-q1">휴대폰에서 내 취향 4가지를 골라 올려 주세요</div>' +
       '<div class="tp-lu-meta">' + (S.lunch && S.lunch.length >= 2 ? '우리 팀 메뉴' : '기본 메뉴') + ' <b>' + menus.length + '</b>개 · 시간 → 양 → 온도 → 종류 순으로 걸러요</div></div>' +
@@ -2668,7 +2807,7 @@ html:has(body.tp-shake) { overflow: hidden; }
     };
     return { off: function () { clearInterval(poll); } };
   };
-  PLAYER.lunch = function (body) {
+  var luMenuPlayer = function (body) {
     var picks = C.lunchSteps.map(function () { return 0; });
     body.innerHTML = '<div class="tp-board sm"><span class="tp-qn">오늘 점심</span><div class="tp-q">내 취향 4가지를 골라 올려 주세요</div></div>' +
       C.lunchSteps.map(function (st, s) {
@@ -2697,6 +2836,170 @@ html:has(body.tp-shake) { overflow: hidden; }
       }).catch(function (e) { sb.disabled = false; Q('#tpSendMsg').textContent = '보내지 못했어요(' + e.message + ') — 진행자에게 [진행자가 고르기] 를 부탁하세요'; SFX.fail(); });
     };
   };
+
+  // ══ 6번 — 점심 · 커피 (11-24) — 위에서 [점심 메뉴 | 커피 쏘기] 를 고른다(사람마다 기억) ══
+  function lcSwitch(body, run) {
+    var mode = S.lcMode === 'coffee' ? 'coffee' : 'menu', inner = null;
+    body.innerHTML = '<div class="tp-lc-tabs" role="tablist"><button role="tab" data-lc="menu">' + ic('bowl') + '점심 메뉴</button><button role="tab" data-lc="coffee">' + ic('coffee') + '커피 쏘기</button></div><div id="lcBody"></div>';
+    var show = function (m) {
+      if (inner && inner.off) try { inner.off(); } catch (e) { /* 무시 */ }
+      mode = m; S.lcMode = m; store.set('lcMode', m);
+      body.querySelectorAll('[data-lc]').forEach(function (b) { b.classList.toggle('on', b.dataset.lc === m); b.setAttribute('aria-selected', b.dataset.lc === m ? 'true' : 'false'); });
+      inner = run[m](Q('#lcBody', body)) || null;
+    };
+    body.querySelectorAll('[data-lc]').forEach(function (b) { b.onclick = function () { if (b.dataset.lc !== mode) { SFX.tap(); show(b.dataset.lc); } }; });
+    show(mode);
+    return { off: function () { if (inner && inner.off) try { inner.off(); } catch (e) { /* 무시 */ } } };
+  }
+  HOST.lunch = function (body) { return lcSwitch(body, { menu: luMenuHost, coffee: cfHost }); };
+  PLAYER.lunch = function (body) { return lcSwitch(body, { menu: luMenuPlayer, coffee: cfPlayer }); };
+
+  // ── 커피 쏘기 — 참가자: 휴대폰에서 [참가](중계 coffee) + 점심 취향을 올린 사람 + 진행자가 넣은 이름. 사다리 · 룰렛으로 한 명.
+  //    당첨은 방 · 라운드 + 참가자 이름(가나다 순)으로 정해, 같은 참가자를 본 화면이면 TV 든 휴대폰이든 · 사다리든 룰렛이든 같은 사람
+  function cfNames(list) { var seen = {}, out = []; list.forEach(function (n) { n = String(n || '').replace(/\s+/g, ' ').trim().slice(0, 12); if (n && !seen[n]) { seen[n] = 1; out.push(n); } }); return out.sort(function (a, b) { return a < b ? -1 : a > b ? 1 : 0; }); }
+  function cfPull() {
+    return Promise.all([relayGet('coffee').catch(function () { return null; }), relayGet('lunch').catch(function () { return null; })]).then(function (r) {
+      if (!r[0] && !r[1]) throw new Error('중계를 읽지 못했어요');
+      var join = (r[0] || []).filter(function (x) { return Number(x.value) === 1; }).map(function (x) { return x.name; });
+      var out = (r[0] || []).filter(function (x) { return Number(x.value) === 0; }).map(function (x) { return x.name; });
+      var lunch = (r[1] || []).map(function (x) { return x.name; }).filter(function (n) { return out.indexOf(n) < 0; });
+      return { join: join, lunch: lunch };
+    });
+  }
+  function cfSeed(names) { return seedOf('coffee') + '|' + names.join(','); }
+  function cfWinner(names) { return Math.floor(rng(cfSeed(names) + '|win')() * names.length); }
+  /** 뽑기 — box 에 [사다리 | 룰렛] 과 그림. names 는 가나다 순 */
+  function cfDraw(box, names, how, done) {
+    var w = cfWinner(names), seed = cfSeed(names);
+    var cel = function () { win('커피는 ' + names[w] + ' 님이 쏩니다!', { pre: '두구두구… 오늘의 커피는?', sub: names.length + '명 중에서 ☕', names: [names[w]] }); if (done) done(names[w]); };
+    if (how === 'roulette') {
+      box.innerHTML = '<div id="cfWheel"></div><div class="tp-lu-hint">' + ic('play') + '<span class="long">원판을 손가락으로 휙 돌리거나, 원판 · 가운데를 눌러도 돌아가요</span><span class="short">원판을 휙 돌리거나 톡 눌러도 돌아가요</span></div>' +
+        '<div class="tp-row center tp-lu-spinrow"><button class="tp-btn primary xl" id="cfGo">' + ic('play') + '룰렛 돌리기</button></div>';
+      var wh = luWheel(Q('#cfWheel', box), names, w, seed, 'coffee');
+      wh.onTrigger(function () { var b = Q('#cfGo', box); if (b && !b.disabled) b.click(); });
+      Q('#cfGo', box).onclick = function () { var b = this; b.disabled = true; b.innerHTML = ic('play') + '두구두구…'; wh.spin(function () { b.innerHTML = ic('coffee') + esc(names[w]); cel(); }); };
+      return;
+    }
+    // 사다리 — 세로줄 n 개, 가로줄은 씨앗으로. 당첨 칸은 당첨자가 닿는 자리 아래
+    box.innerHTML = '<div class="tp-ld"><canvas id="cfLd"></canvas></div><div class="tp-row center tp-lu-spinrow"><button class="tp-btn primary xl" id="cfGo">' + ic('ladder') + '사다리 타기</button></div>';
+    var cv = Q('#cfLd', box), n = names.length, colW = Math.max(64, Math.min(120, 760 / n)), Wd = Math.round(colW * n), TOP = 70, BOT = 64, Hh = 380, ROWS = 9;
+    cv.width = Wd * 2; cv.height = (TOP + Hh + BOT) * 2; cv.style.width = Wd + 'px'; cv.style.maxWidth = '100%';
+    var x = cv.getContext('2d'); x.scale(2, 2);
+    var r = rng(seed + '|ladder'), rungs = []; // rungs[row] = [왼쪽 세로줄 번호 …] (이웃끼리 붙지 않게)
+    for (var row = 0; row < ROWS; row++) { var line = []; for (var k = 0; k < n - 1; k++) if (r() < 0.45 && line.indexOf(k - 1) < 0) line.push(k); rungs.push(line); }
+    var colX = function (i) { return colW * (i + 0.5); }, rowY = function (row) { return TOP + (row + 0.5) * Hh / ROWS; };
+    var pathOf = function (i) { var p = [[colX(i), TOP]], c = i; for (var row = 0; row < ROWS; row++) { var y = rowY(row); if (rungs[row].indexOf(c) >= 0) { p.push([colX(c), y]); c++; p.push([colX(c), y]); } else if (rungs[row].indexOf(c - 1) >= 0) { p.push([colX(c), y]); c--; p.push([colX(c), y]); } } p.push([colX(c), TOP + Hh]); return { pts: p, end: c }; };
+    var paths = names.map(function (nm, i) { return pathOf(i); }), hit = paths[w].end, done2 = {}, prog = {};
+    var PAL = ['#60a5fa', '#34d399', '#fbbf24', '#f472b6', '#a78bfa', '#fb923c', '#2dd4bf', '#f87171', '#38bdf8', '#4ade80', '#e879f9', '#facc15', '#818cf8', '#fb7185', '#22d3ee', '#a3e635'];
+    function paint() {
+      x.clearRect(0, 0, Wd, TOP + Hh + BOT);
+      x.lineCap = 'round'; x.strokeStyle = 'rgba(255,255,255,0.28)'; x.lineWidth = 4;
+      for (var i = 0; i < n; i++) { x.beginPath(); x.moveTo(colX(i), TOP); x.lineTo(colX(i), TOP + Hh); x.stroke(); }
+      rungs.forEach(function (line, row) { line.forEach(function (k) { x.beginPath(); x.moveTo(colX(k), rowY(row)); x.lineTo(colX(k + 1), rowY(row)); x.stroke(); }); });
+      names.forEach(function (nm, i) {
+        var pr = prog[i]; if (pr === undefined) return;
+        var pts = paths[i].pts, len = 0, segs = []; for (var s = 1; s < pts.length; s++) { var d = Math.abs(pts[s][0] - pts[s - 1][0]) + Math.abs(pts[s][1] - pts[s - 1][1]); segs.push(d); len += d; }
+        var want = len * pr; x.strokeStyle = i === w && pr >= 1 ? '#fde047' : PAL[i % PAL.length]; x.lineWidth = i === w && pr >= 1 ? 7 : 5;
+        x.beginPath(); x.moveTo(pts[0][0], pts[0][1]);
+        for (var s2 = 1; s2 < pts.length && want > 0; s2++) { var d2 = segs[s2 - 1], f = Math.min(1, want / d2); x.lineTo(pts[s2 - 1][0] + (pts[s2][0] - pts[s2 - 1][0]) * f, pts[s2 - 1][1] + (pts[s2][1] - pts[s2 - 1][1]) * f); want -= d2; }
+        x.stroke();
+      });
+      x.textAlign = 'center'; x.textBaseline = 'middle';
+      names.forEach(function (nm, i) {
+        var cx = colX(i), on = prog[i] !== undefined;
+        x.fillStyle = on ? PAL[i % PAL.length] : 'rgba(255,255,255,0.12)'; x.beginPath(); x.arc(cx, 30, 22, 0, Math.PI * 2); x.fill();
+        x.fillStyle = on ? '#1a1f3d' : '#fff'; x.font = '800 18px "Noto Sans KR", sans-serif'; x.fillText(Array.from(nm)[0] || '?', cx, 31);
+        x.fillStyle = '#e2e8f0'; x.font = '600 ' + (colW < 80 ? 12 : 14) + 'px "Noto Sans KR", sans-serif'; var t = nm.length > 5 && colW < 90 ? nm.slice(0, 4) + '…' : nm; x.fillText(t, cx, 62);
+      });
+      for (var b = 0; b < n; b++) {
+        var bx = colX(b), by = TOP + Hh + 30, open = Object.keys(done2).some(function (k) { return paths[k].end === b; });
+        x.fillStyle = open ? (b === hit ? '#fde047' : 'rgba(255,255,255,0.14)') : 'rgba(255,255,255,0.08)';
+        var bw2 = Math.min(colW - 10, 86); x.beginPath(); if (x.roundRect) x.roundRect(bx - bw2 / 2, by - 18, bw2, 36, 10); else x.rect(bx - bw2 / 2, by - 18, bw2, 36); x.fill();
+        x.fillStyle = open && b === hit ? '#1a1f3d' : '#cbd5e1'; x.font = '800 15px "Noto Sans KR", sans-serif';
+        x.fillText(open ? (b === hit ? '☕ 커피' : '통과') : '?', bx, by + 1);
+      }
+    }
+    paint();
+    Q('#cfGo', box).onclick = function () {
+      var bt = this; bt.disabled = true; bt.innerHTML = ic('ladder') + '타는 중…'; SFX.go();
+      // 한 사람씩 — 당첨자는 맨 마지막(긴장감). 한 줄에 0.45~1초
+      var order = names.map(function (nm, i) { return i; }).filter(function (i) { return i !== w; }); order = shuffled(order, seed + '|order'); order.push(w);
+      var per = Math.max(450, Math.min(1000, 9000 / n)), k = 0;
+      (function one() {
+        if (k >= order.length) { bt.innerHTML = ic('coffee') + esc(names[w]); cel(); return; }
+        var i = order[k], t0 = performance.now(), last = i === w;
+        (function f(now) {
+          if (!box.isConnected) return;
+          var p = Math.min(1, (now - t0) / (last ? per * 2.2 : per)); prog[i] = last ? 1 - Math.pow(1 - p, 2) : p; paint();
+          if (p < 1) { requestAnimationFrame(f); return; }
+          done2[i] = 1; paint(); if (last) { SFX.clack(); buzz([40, 30, 80]); } else SFX.tick(); k++; setTimeout(one, last ? 200 : 120);
+        })(t0);
+      })();
+    };
+  }
+  function cfHost(body) {
+    var got = { join: [], lunch: [] }, manual = [], skip = {}, poll = 0, ran = false, how = S.cfHow === 'roulette' ? 'roulette' : 'ladder';
+    body.innerHTML = '<div class="tp-board"><span class="tp-qn">오늘의 커피</span><div class="tp-q tp-lu-q1">커피 쏘기 — 한 명을 뽑아요</div>' +
+      '<div class="tp-lu-meta">휴대폰에서 [커피 뽑기 참가] 또는 점심 취향을 올린 사람이 모여요 · 이름을 직접 넣어도 돼요</div></div>' +
+      '<div class="tp-row center"><span class="tp-sb-auto-st" id="cfAuto">중계 확인 중…</span></div>' +
+      '<div class="tp-cf-who" id="cfWho"></div>' +
+      '<div class="tp-cf-add"><input id="cfName" maxlength="12" placeholder="이름 넣기(엔터)"><button class="tp-btn" id="cfAdd">' + ic('users') + '더하기</button></div>' +
+      '<div class="tp-cf-how"><button data-how="ladder">' + ic('ladder') + '사다리 타기</button><button data-how="roulette">' + ic('play') + '룰렛 돌리기</button></div>' +
+      '<div class="tp-row center" id="cfBtns"><button class="tp-btn primary xl" id="cfStart">' + ic('coffee') + '커피 쏠 사람 뽑기</button></div>' +
+      '<div id="cfBox"></div>';
+    var names = function () { return cfNames(got.join.concat(got.lunch, manual)).filter(function (n) { return !skip[n]; }); };
+    var who = function () {
+      var el = Q('#cfWho'); if (!el) return;
+      var all = cfNames(got.join.concat(got.lunch, manual));
+      el.innerHTML = all.length ? all.map(function (n) { var src = manual.indexOf(n) >= 0 ? '직접' : got.join.indexOf(n) >= 0 ? '참가' : '점심'; return '<button class="tp-cf-chip' + (skip[n] ? ' off' : '') + '" data-n="' + esc(n) + '" title="눌러서 ' + (skip[n] ? '다시 넣기' : '빼기') + '">' + esc(n) + '<small>' + src + '</small></button>'; }).join('') : '<span class="none">아직 아무도 없어요 — 휴대폰에서 참가하거나 이름을 넣어 주세요</span>';
+      var st = Q('#cfStart'); if (st) st.disabled = names().length < 2;
+    };
+    var pull = function () {
+      if (ran) return;
+      cfPull().then(function (r) { got = r; var st = Q('#cfAuto'); if (!st) return; st.className = 'tp-sb-auto-st on'; st.innerHTML = '<span class="long">방 ' + esc(S.room) + ' · 라운드 ' + S.round + ' — 참가 ' + r.join.length + '명 · 점심 취향 ' + r.lunch.length + '명 · 3초마다 새로</span><span class="short">방 ' + esc(S.room) + ' · ' + S.round + '라운드 · ' + cfNames(r.join.concat(r.lunch)).length + '명</span>'; who(); })
+        .catch(function (err) { var st = Q('#cfAuto'); if (st) { st.className = 'tp-sb-auto-st off'; st.textContent = '중계를 읽지 못했어요(' + ((err && err.message) || '') + ') — 이름을 직접 넣어 뽑아도 돼요'; } });
+    };
+    var add = function () { var v = Q('#cfName').value.replace(/\s+/g, ' ').trim().slice(0, 12); if (!v) return; if (manual.indexOf(v) < 0) manual.push(v); delete skip[v]; Q('#cfName').value = ''; SFX.tap(); who(); };
+    Q('#cfAdd').onclick = add; Q('#cfName').onkeydown = function (e) { if (e.key === 'Enter') add(); };
+    Q('#cfWho').onclick = function (e) { var b = e.target.closest('[data-n]'); if (!b || ran) return; var n = b.dataset.n; if (skip[n]) delete skip[n]; else skip[n] = 1; SFX.tap(); who(); };
+    var setHow = function (h) { how = h; S.cfHow = h; store.set('cfHow', h); body.querySelectorAll('[data-how]').forEach(function (b) { b.classList.toggle('on', b.dataset.how === h); }); };
+    body.querySelectorAll('[data-how]').forEach(function (b) { b.onclick = function () { if (!ran) { SFX.tap(); setHow(b.dataset.how); } }; });
+    setHow(how);
+    Q('#cfStart').onclick = function () {
+      var list = names(); if (list.length < 2) { toast('두 명 이상이어야 뽑을 수 있어요', 'bad'); return; }
+      ran = true; clearInterval(poll); Q('#cfBtns').hidden = true; body.querySelector('.tp-cf-add').hidden = true; body.querySelector('.tp-cf-how').classList.add('locked');
+      cfDraw(Q('#cfBox'), list, how);
+      setTimeout(function () { var bx = Q('#cfBox'); if (bx) bx.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+    };
+    who(); pull(); poll = setInterval(pull, 3000);
+    return { off: function () { clearInterval(poll); } };
+  }
+  function cfPlayer(body) {
+    var how = S.cfHow === 'roulette' ? 'roulette' : 'ladder';
+    body.innerHTML = '<div class="tp-board sm"><span class="tp-qn">오늘의 커피</span><div class="tp-q">커피 쏘기 뽑기에 참가해요</div></div>' +
+      '<div class="tp-send"><input id="tpMyName" maxlength="12" placeholder="내 이름(닉네임)" value="' + esc(S.name) + '"><button class="tp-btn primary" id="cfJoin">' + ic('coffee') + '커피 뽑기 참가</button></div>' +
+      '<div class="tp-muted tp-small center" id="cfMsg">점심 취향을 올렸으면 이미 들어가 있어요 · 진행자 화면에서 사다리 · 룰렛을 돌려요</div>' +
+      '<div class="tp-cf-pres"><button class="tp-btn" id="cfOut">빠지기</button><button class="tp-btn" id="cfSee">' + ic('eye') + '내 휴대폰에서 결과 보기</button></div>' +
+      '<div id="cfPBox"></div>';
+    var send = function (v) {
+      var nm = Q('#tpMyName').value.trim(); if (!nm) { toast('이름을 넣으세요', 'bad'); Q('#tpMyName').focus(); return; }
+      S.name = nm; store.set('name', nm); Q('#cfMsg').textContent = '보내는 중…';
+      relayPost('coffee', v).then(function () { SFX.go(); buzz(50); Q('#cfMsg').innerHTML = '<b>' + ic('check') + '방 ' + esc(S.room) + ' · 라운드 ' + S.round + (v ? ' 커피 뽑기에 참가했어요!' : ' 커피 뽑기에서 빠졌어요') + '</b>'; })
+        .catch(function (e) { Q('#cfMsg').textContent = '보내지 못했어요(' + e.message + ') — 진행자에게 이름을 넣어 달라고 하세요'; SFX.fail(); });
+    };
+    Q('#cfJoin').onclick = function () { send(1); }; Q('#cfOut').onclick = function () { send(0); };
+    Q('#cfSee').onclick = function () {
+      var box = Q('#cfPBox'); box.innerHTML = '<p class="tp-muted center">모인 사람 읽는 중…</p>';
+      cfPull().then(function (r) {
+        var list = cfNames(r.join.concat(r.lunch));
+        if (list.length < 2) { box.innerHTML = '<p class="tp-muted center">아직 두 명이 안 모였어요(' + list.length + '명)</p>'; return; }
+        box.innerHTML = '<div class="tp-cf-pinfo">' + ic('users') + list.length + '명 · 진행자 화면과 같은 사람이 모였으면 같은 결과가 나와요<span class="tp-cf-how sm"><button data-how="ladder">' + ic('ladder') + '사다리</button><button data-how="roulette">' + ic('play') + '룰렛</button></span></div><div id="cfPDraw"></div>';
+        var go2 = function (h) { how = h; box.querySelectorAll('[data-how]').forEach(function (b) { b.classList.toggle('on', b.dataset.how === h); }); cfDraw(Q('#cfPDraw', box), list, h); };
+        box.querySelectorAll('[data-how]').forEach(function (b) { b.onclick = function () { go2(b.dataset.how); }; });
+        go2(how);
+      }).catch(function (e) { box.innerHTML = '<p class="tp-muted center">읽지 못했어요(' + esc(e.message) + ')</p>'; });
+    };
+  }
   // 포탈(티키타카) 안에서 열면 팀 점심 메뉴 목록을 넘겨받는다 — 부모 창에서 온 것만
   window.addEventListener('message', function (e) {
     var d = e.data;
