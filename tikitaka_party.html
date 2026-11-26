@@ -1909,6 +1909,21 @@ html:has(body.tp-shake) { overflow: hidden; }
           76, null, 71, null, 68, 71, 74, null,
         ],
       },
+      // 룰렛 (11-26 사용자 '룰렛 돌릴 때도 배경 음악') — C 장조, 172 BPM, 게임쇼처럼 밝고 들뜬 8비트(여기서 새로 지음). 돌기 시작하면 켜고 멈추면 끔
+      roulette: {
+        bpm: 172,
+        roots: [48, 48, 45, 45, 41, 43, 48, 43],
+        lead: [
+          72, 76, 79, 84, 79, 76, 72, 76,
+          74, 77, 79, 77, 76, 74, 72, null,
+          69, 72, 76, 81, 76, 72, 69, 72,
+          71, 72, 74, 76, 77, 76, 74, 72,
+          77, 81, 84, 81, 77, 81, 84, 89,
+          86, 83, 79, 83, 86, null, 84, 83,
+          84, 79, 76, 79, 84, 88, 86, 84,
+          83, null, 79, null, 74, null, 71, null,
+        ],
+      },
     };
     var cur = null, noise = null;
     function noiseBuf(c) {
@@ -2963,8 +2978,11 @@ html:has(body.tp-shake) { overflow: hidden; }
       var over = near ? dir * (e0 + cross) * seg : 0;
       var HOLD = near ? 460 : 0, BACK = near ? 720 : 0, t0 = performance.now(), last = under(a0);
       idle = false; spinning = true; SFX.go();
+      BGM.play('roulette', 1, function () { return host.isConnected; }); // 11-26 — 도는 동안 배경 음악, 거의 멈추면 줄이고 멈추면 끔
+      var hushed = false;
       (function frame(now) {
-        if (!host.isConnected) return;
+        if (!host.isConnected) { BGM.stop(0.3); return; }
+        if (!hushed && now - t0 > DUR * 0.82) { hushed = true; BGM.level(0.6); }
         var t = now - t0;
         if (t < DUR) {
           var p = t / DUR; ang = a0 + (final + over - a0) * (1 - Math.pow(1 - p, K));
@@ -2979,6 +2997,7 @@ html:has(body.tp-shake) { overflow: hidden; }
           ang = final + over - over * eb; bent = -16 * dir * (1 - q);
         } else {
           ang = final; bent = 0; lit = win; spinning = false;
+          BGM.stop(0.6);
           paint(now); idle = true; (function glow(t2) { if (!host.isConnected || !idle) return; paint(t2); requestAnimationFrame(glow); })();
           if (onEnd) onEnd();
           return;
@@ -3206,10 +3225,12 @@ html:has(body.tp-shake) { overflow: hidden; }
     });
   }
   function cfSeed(names) { return luTrySeed(seedOf('coffee') + '|' + names.join(',')); } // [처음부터 다시] 를 누른 진행자 화면만 새 결과
-  function cfWinner(names) { return Math.floor(rng(cfSeed(names) + '|win')() * names.length); }
+  // salt — 진행자가 이름 넣고 뽑기(휴대폰 없이)는 맞출 화면이 없으니 뽑을 때마다 새로 섞는다(11-26 사용자 '사다리 타면 항상 맨 왼쪽이 커피 — 랜덤으로':
+  //   같은 방 · 라운드 · 이름이면 일부러 같은 결과라, 같은 방에서 몇 번을 해도 같은 자리였다). 휴대폰이 모이는 방식은 화면끼리 같아야 하므로 그대로
+  function cfWinner(names, salt) { return Math.floor(rng(cfSeed(names) + (salt || '') + '|win')() * names.length); }
   /** 뽑기 — box 에 [사다리 | 룰렛] 과 그림. names 는 가나다 순 */
-  function cfDraw(box, names, how, done) {
-    var w = cfWinner(names), seed = cfSeed(names);
+  function cfDraw(box, names, how, done, salt) {
+    var w = cfWinner(names, salt), seed = cfSeed(names) + (salt || '');
     var cel = function () { win('커피는 ' + names[w] + ' 님이 쏩니다!', { pre: '두구두구… 오늘의 커피는?', sub: names.length + '명 중에서 ☕', names: [names[w]] }); if (done) done(names[w]); };
     if (how === 'roulette') {
       box.innerHTML = '<div id="cfWheel"></div><div class="tp-lu-hint">' + ic('play') + '<span class="long">원판을 손가락으로 휙 돌리거나, 원판 · 가운데를 눌러도 돌아가요</span><span class="short">원판을 휙 돌리거나 톡 눌러도 돌아가요</span></div>' +
@@ -3377,7 +3398,8 @@ html:has(body.tp-shake) { overflow: hidden; }
       var hr = Q('#cfHandRow'); if (hr) hr.hidden = true; var la = body.querySelector('.tp-cf-last'); if (la) la.hidden = true;
       if (manual.length) store.set('cfManual', JSON.stringify(manual.slice(0, 30)));
       if (!intro.classList.contains('mini')) luIntroDown(body, intro, '커피 쏘기 — ' + list.length + '명 중 한 명 · 같은 사람이 모였으면 어느 화면 · 어느 방법이든 같은 사람');
-      cfDraw(Q('#cfBox'), list, how, function () { var a = Q('#cfAgain', body); if (!a) return; a.innerHTML = luAgainHtml('커피 뽑기를'); luAgainBind(a, 'lunch'); });
+      var salt = hand ? '|hand' + Math.floor(Math.random() * 1e9).toString(36) : ''; // 휴대폰 없이면 매번 새로
+      cfDraw(Q('#cfBox'), list, how, function () { var a = Q('#cfAgain', body); if (!a) return; a.innerHTML = luAgainHtml('커피 뽑기를'); luAgainBind(a, 'lunch'); }, salt);
       setTimeout(function () { luToTop(Q('.tp-cf-how', body)); }, 100);
     };
     who(); pull(); poll = setInterval(pull, 3000);
