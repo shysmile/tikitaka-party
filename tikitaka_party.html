@@ -486,6 +486,47 @@ html:has(body.tp-shake) { overflow: hidden; }
 .tp-lu-po button.any { color: var(--tp-muted); }
 .tp-lu-po button.on { border-color: transparent; background: linear-gradient(135deg, var(--tp-pri), var(--tp-pri2)); color: #fff; font-weight: 700; box-shadow: 0 4px 14px rgba(91, 124, 250, 0.35); }
 @media (max-width: 600px) { .tp-lu-step { grid-template-columns: 30px 1fr; } .tp-lu-step .tp-lu-cnt { grid-column: 2; } .tp-lu-step b { font-size: 16px; } .tp-lu-sn { width: 28px; height: 28px; } }
+/* ── 11-26 휴대폰 손질 (사용자 '가로 스크롤이 생겨 왔다 갔다 · 취향 제목이 반쯤 잘림 · 화면 높이의 50%') ── */
+.tp { overflow-x: clip; }
+/* 머리 줄 — 375px 에서 [팀원 | 진행자] 가 밖으로 밀려 가로 스크롤이 생겼다 */
+@media (max-width: 520px) {
+  .tp-top { gap: 4px; padding: 8px 8px; }
+  .tp-brand { display: none; }
+  .tp-roomchip { min-width: 0; flex: 0 1 auto; overflow: hidden; gap: 3px; padding: 0 8px; }
+  .tp-roomchip .k { display: none; }
+  .tp-roomchip b + .k + b::before { content: '· '; color: var(--tp-muted); font-weight: 400; letter-spacing: 0; }
+  .tp-check { margin-left: 2px; padding: 1px 5px; }
+  .tp-iconbtn { width: 32px; height: 32px; flex: none; }
+  .tp.host #tpFull { display: none; }
+  .tp-mode { flex: none; }
+  .tp-mode button { padding: 0 8px; }
+}
+/* 점심 · 커피 첫 설명 — 진행자 56px 고정 대신 화면에 맞춰 */
+.tp.host .tp-board .tp-q.tp-lu-q1 { font-size: clamp(22px, 3.4vw, 40px); max-height: none; }
+@media (max-width: 600px) { .tp-lu-intro { padding: 16px; } .tp-lu-intro .tp-lu-meta { font-size: 13px; } }
+/* 시작한 뒤 — 맨 아래 작게 */
+.tp-lu-intro.mini { margin-top: 16px; padding: 10px 14px; text-align: left; background: rgba(255, 255, 255, 0.04); border-style: dashed; }
+.tp-lu-intro.mini .tp-qn { margin: 0 6px 0 0; vertical-align: 1px; }
+.tp-lu-intro.mini .tp-q, .tp.host .tp-board.tp-lu-intro.mini .tp-q.tp-lu-q1 { display: inline; min-height: 0; max-height: none; font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--tp-muted); }
+.tp-lu-intro.mini .tp-lu-meta { margin-top: 4px; font-size: 12px; }
+.tp-lu-intro.mini .tp-lu-meta b { font-size: 13px; }
+/* 고르기 · 룰렛이 맨 위 — 위 고정 줄(머리 · 게임 탭)에 가리지 않게 */
+#luTop, #luFin, .tp-cf-add, .tp-cf-how { scroll-margin-top: 130px; }
+.tp-lu-top #luFin:empty { display: none; }
+/* 다시 고르기 · 새 방 — 아래쪽 따로 */
+.tp-lu-again { margin: 18px auto 0; max-width: 900px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--tp-line); background: rgba(255, 255, 255, 0.04); text-align: center; }
+.tp-lu-again > b { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--tp-muted); }
+.tp-lu-again .tp-ic { width: 15px; height: 15px; }
+.tp-lu-again .tp-row { margin: 8px 0 4px; }
+.tp-lu-again p { margin: 4px 0 0; }
+.tp-cf-last { margin: 0; }
+/* 점심 사옥 고르기 (11-26) — 첫 설명 판 안, 시작하면 숨김 */
+.tp-lu-site { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin: 12px auto 0; padding: 4px; border-radius: 14px; background: rgba(0, 0, 0, 0.22); }
+.tp-lu-site button { height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: none; color: var(--tp-muted); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.tp-lu-site button.on { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+.tp-lu-intro.mini .tp-lu-site { display: none; }
+.tp-lu-where { font-size: 0.9em; }
+@media (max-width: 600px) { .tp-lu-site button { height: 34px; padding: 0 11px; font-size: 14px; } .tp-lu-where { display: none; } }
 
 </style>
 </head>
@@ -493,7 +534,7 @@ html:has(body.tp-shake) { overflow: hidden; }
 <div id="tkparty"></div>
 <script>
 /* 티키타카 파티 — 콘텐츠 (2026-11-22). 인프라 · 클라우드 · 플랫폼 운영 조직 공감 소재.
- *   window.TKPartyContent = { telepathy[20], drawing[20], colors[], lunchSteps[4], lunch[42] }
+ *   window.TKPartyContent = { telepathy[20], drawing[20], colors[], lunchSteps[4], lunch[42], lunchSites{bangbae, bundang} }
  *   라운드마다 방 코드로 섞은 순서에서 하나씩 꺼내 쓴다(party.js) — 같은 방 · 라운드면 어느 기기에서나 같은 문제.
  */
 (function () {
@@ -585,6 +626,132 @@ html:has(body.tp-shake) { overflow: hidden; }
       ["컵밥","tight","light","warm spicy","snack"],
       ["잔치국수","tight","light","warm","snack"],
     ],
+    // 사옥별 점심 메뉴 (11-26 — 주변 800m, 플러그인 room.js LUNCH_SITES 와 같은 목록)
+    lunchSites: {
+      bangbae: { label: "방배 사옥", where: "서초구 효령로 176 (KT서초지사 · 방배역 쪽)", menus: [
+        ["짜장면","relax tight deliv","full","warm","cn"],
+        ["짬뽕","relax tight deliv","full","warm spicy","cn"],
+        ["탕수육 세트","relax deliv","full","warm","cn"],
+        ["백반 정식","relax tight","full","warm","kr"],
+        ["떡볶이","tight deliv","light","spicy","snack"],
+        ["파스타","relax","full","warm","west"],
+        ["피자","relax deliv","full","warm","west"],
+        ["김밥","tight deliv","light","cool","snack"],
+        ["돈가스","relax tight deliv","full","warm","jp"],
+        ["칼국수","relax tight","full","warm","kr"],
+        ["햄버거","tight deliv","full","warm","west"],
+        ["보쌈 정식","relax deliv","full","warm","kr"],
+        ["순대국밥","relax tight","full","warm","kr"],
+        ["제육볶음 정식","relax tight","full","spicy","kr"],
+        ["아구찜","relax deliv","full","warm spicy","kr"],
+        ["초밥","relax deliv","light","cool","jp"],
+        ["물냉면","relax","light full","cool","kr"],
+        ["연어덮밥","relax deliv","light","cool","jp"],
+        ["샐러드","relax deliv","light","cool","west"],
+        ["만두","relax deliv","light","warm","kr"],
+        ["라멘","relax","full","warm","jp"],
+        ["샌드위치","relax deliv","light","cool","west"],
+        ["닭갈비","relax","full","spicy","kr"],
+        ["한식뷔페","relax tight","full","warm","kr"],
+        ["삼계탕","relax","full","warm","kr"],
+        ["쭈꾸미볶음","relax","full","spicy","kr"],
+        ["쌀국수","relax tight deliv","light full","warm","cn"],
+        ["김치찌개","relax tight","full","warm spicy","kr"],
+        ["순두부찌개","relax tight","full","warm spicy","kr"],
+        ["청국장","relax tight","full","warm","kr"],
+        ["갈비탕","relax","full","warm","kr"],
+        ["비빔냉면","relax","light full","cool spicy","kr"],
+        ["카이센동","relax","light full","cool","jp"],
+        ["포케","relax deliv","light","cool","west"],
+        ["마라탕","relax deliv","full","warm spicy","cn"],
+        ["찜닭","relax deliv","full","warm spicy","kr"],
+        ["육개장","relax","full","warm spicy","kr"],
+        ["추어탕","relax","full","warm","kr"],
+        ["샤브샤브","relax","full","warm","jp"],
+        ["설렁탕","relax","full","warm","kr"],
+        ["비빔밥","relax","full","cool spicy","kr"],
+        ["복지리","relax","full","warm","kr"],
+        ["브런치","relax","light","warm","west"],
+        ["쌈밥 정식","relax","full","cool","kr"],
+        ["생대구탕","relax","full","warm","kr"],
+        ["감자탕","relax","full","warm spicy","kr"],
+        ["한정식","relax","full","warm","kr"],
+        ["타코","relax","light","spicy","west"],
+        ["부대찌개","relax deliv","full","warm spicy","kr"],
+        ["코다리조림","relax","full","spicy","kr"],
+        ["마제소바","relax","full","spicy","jp"],
+        ["우동","relax","light full","warm","jp"],
+        ["잔치국수","relax","light","warm","snack"],
+        ["카레라이스","relax deliv","full","warm spicy","jp"],
+        ["규동","relax","full","warm","jp"],
+        ["인도 커리","relax","full","warm spicy","jp"],
+        ["된장찌개","relax","full","warm","kr"],
+        ["한우국밥","relax","full","warm","kr"],
+        ["올갱이해장국","relax","full","warm","kr"],
+        ["짜글이","relax","full","warm spicy","kr"],
+      ] },
+      bundang: { label: "분당 사옥", where: "분당구 불정로 90 (KT 분당 본사)", menus: [
+        ["짜장면","relax tight deliv","full","warm","cn"],
+        ["짬뽕","relax tight deliv","full","warm spicy","cn"],
+        ["탕수육 세트","relax deliv","full","warm","cn"],
+        ["칼국수","relax tight","full","warm","kr"],
+        ["파스타","relax","full","warm","west"],
+        ["백반 정식","relax tight","full","warm","kr"],
+        ["김밥","tight deliv","light","cool","snack"],
+        ["돈가스","relax tight deliv","full","warm","jp"],
+        ["쌀국수","relax tight deliv","light full","warm","cn"],
+        ["떡볶이","tight deliv","light","spicy","snack"],
+        ["우동","tight","light full","warm","jp"],
+        ["초밥","relax deliv","light","cool","jp"],
+        ["순대국밥","relax tight","full","warm","kr"],
+        ["팟타이","relax","full","warm","cn"],
+        ["부대찌개","relax deliv","full","warm spicy","kr"],
+        ["물냉면","relax tight","light full","cool","kr"],
+        ["비빔냉면","relax tight","light full","cool spicy","kr"],
+        ["감자탕","relax","full","warm spicy","kr"],
+        ["갈비탕","relax","full","warm","kr"],
+        ["추어탕","relax tight","full","warm","kr"],
+        ["만두","relax tight deliv","light","warm","kr"],
+        ["피자","relax deliv","full","warm","west"],
+        ["평양냉면","relax","light full","cool","kr"],
+        ["막국수","relax tight","light","cool","kr"],
+        ["삼계탕","relax","full","warm","kr"],
+        ["햄버거","tight deliv","full","warm","west"],
+        ["브런치","relax","light","warm","west"],
+        ["육개장","relax","full","warm spicy","kr"],
+        ["낙지볶음","relax","full","spicy","kr"],
+        ["생선구이 정식","relax","full","warm","kr"],
+        ["중식 국밥","relax tight","full","warm spicy","cn"],
+        ["오징어볶음","relax tight","full","spicy","kr"],
+        ["카레라이스","relax tight deliv","full","warm spicy","jp"],
+        ["함박스테이크","relax","full","warm","jp"],
+        ["일본 가정식","relax","full","warm","jp"],
+        ["황태 정식","relax","full","warm","kr"],
+        ["돌솥밥 정식","relax","full","warm","kr"],
+        ["즉석떡볶이","relax","full","spicy","snack"],
+        ["쭈꾸미볶음","relax","full","spicy","kr"],
+        ["아구찜","relax deliv","full","warm spicy","kr"],
+        ["콩나물국밥","relax tight","full","warm","kr"],
+        ["닭백숙","relax","full","warm","kr"],
+        ["쫄면","tight","light","cool spicy","snack"],
+        ["멸치국수","tight","light","warm","snack"],
+        ["샤브샤브","relax","full","warm","jp"],
+        ["오므라이스","relax tight","full","warm","jp"],
+        ["연어덮밥","relax tight deliv","light","cool","jp"],
+        ["소바","relax tight","light","cool","jp"],
+        ["수제비","relax tight","full","warm","kr"],
+        ["콩국수","relax","light","cool","kr"],
+        ["비빔국수","relax","light","spicy","snack"],
+        ["잔치국수","relax","light","warm","snack"],
+        ["냉모밀","relax","light","cool","jp"],
+        ["죽","relax deliv","light","warm","kr"],
+        ["비빔밥","relax","full","cool spicy","kr"],
+        ["딤섬","relax","light","warm","cn"],
+        ["마제소바","relax","full","spicy","jp"],
+        ["라멘","relax","full","warm","jp"],
+        ["스테이크","relax","full","warm","west"],
+      ] },
+    },
   };
   window.TKPartyContent = C;
   if (typeof module !== 'undefined') module.exports = C;
@@ -1610,6 +1777,7 @@ html:has(body.tp-shake) { overflow: hidden; }
     name: store.get('name') || '',
     lcMode: store.get('lcMode') || 'menu', // 6번 점심 · 커피 — 마지막에 본 쪽
     cfHow: store.get('cfHow') || 'ladder', // 커피 쏘기 — 사다리 · 룰렛
+    site: P.get('site') || store.get('lunchSite') || 'etc', // 점심 사옥 — bangbae · bundang · etc (11-26)
     via: '', // 중계에 닿는 길 — 'direct' 바로 · 'parent' 포탈이 대신
   };
   var GAMES = [
@@ -1840,7 +2008,7 @@ html:has(body.tp-shake) { overflow: hidden; }
     tele: ['모두 같은 질문을 봅니다. 각자 답을 적고 [가리기] 로 숨겨 두세요.', '진행자가 "하나, 둘, 셋!" 하면 일제히 [공개] — 전광판처럼 크게 보여 줍니다.', '[답 올리기] 를 해 두면 "공개!" 때 진행자 화면에 같은 답끼리 묶어 순위로 보여 줍니다. 같은 답이 많을수록 한마음!'],
     draw: ['휴대폰 한 대를 돌립니다. 1번(출제자)만 제시어를 봅니다.', '1번이 5초 동안 밑그림 → 2번 · 3번이 5초씩 더 그립니다. 말 · 글자는 금지!', '마지막 사람이 그림을 보고 제시어를 외치면, 진행자가 [정답 공개] 로 확인합니다.'],
     cipher: ['3~4명이 각자 역할 번호(1~4번)를 고르면, 서로 다른 단서 카드가 하나씩 나옵니다.', '화면을 보여 주면 안 됩니다. 말로만 단서를 나누어 4자리 암호를 맞히세요.', '암호를 넣고 [확인] — 맞으면 잠금이 풀립니다. 막히면 진행자가 힌트를 줍니다.'],
-    lunch: ['휴대폰에서 시간 · 양 · 온도 · 종류 네 가지 취향을 고르고 [취향 올리기] 를 누릅니다(잘 모르겠으면 \'상관없음\'). 진행자 화면과 방 코드 · 라운드가 같아야 모여요.', '진행자가 [결과 보기] 를 누르면 단계마다 가장 많이 고른 쪽으로 메뉴를 거릅니다(룰렛 칸 수만큼 남으면 멈춤 · 8개보다 적어지는 단계는 건너뜀).', '룰렛은 참여 인원에 따라 8~16칸 — 한 사람에 2~4개씩 내 취향에 맞는 메뉴가 들어가고, 비슷한 메뉴(물냉면 · 비빔냉면)는 하나만. 같은 방 · 라운드 · 취향이면 어느 화면에서 돌려도 같은 메뉴가 나와요.', '[커피 쏘기] — 휴대폰에서 [커피 뽑기 참가](점심 취향을 올린 사람은 이미 들어감), 진행자는 이름을 더 넣거나 눌러서 뺄 수 있어요. 사다리 · 룰렛 중 골라 한 명을 뽑아요 — 같은 사람이 모였으면 어느 화면 · 어느 방법이든 같은 사람이 나와요.'],
+    lunch: ['진행자는 먼저 [방배 사옥 · 분당 사옥 · 그 외] 를 고릅니다 — 방배 · 분당은 사옥에서 걸어서 800m 안 식당의 메뉴, 그 외(다른 사옥 · 외근 · 워크숍)는 우리 팀 메뉴나 기본 메뉴예요.', '휴대폰에서 시간 · 양 · 온도 · 종류 네 가지 취향을 고르고 [취향 올리기] 를 누릅니다(잘 모르겠으면 \'상관없음\'). 진행자 화면과 방 코드 · 라운드가 같아야 모여요.', '진행자가 [결과 보기] 를 누르면 단계마다 가장 많이 고른 쪽으로 메뉴를 거릅니다(룰렛 칸 수만큼 남으면 멈춤 · 8개보다 적어지는 단계는 건너뜀).', '룰렛은 참여 인원에 따라 8~16칸 — 한 사람에 2~4개씩 내 취향에 맞는 메뉴가 들어가고, 비슷한 메뉴(물냉면 · 비빔냉면)는 하나만. 같은 방 · 라운드 · 취향이면 어느 화면에서 돌려도 같은 메뉴가 나와요.', '[커피 쏘기] — 휴대폰에서 [커피 뽑기 참가](점심 취향을 올린 사람은 이미 들어감), 진행자는 이름을 더 넣거나 눌러서 뺄 수 있어요. 사다리 · 룰렛 중 골라 한 명을 뽑아요 — 같은 사람이 모였으면 어느 화면 · 어느 방법이든 같은 사람이 나와요.'],
   };
 
   // ── 방 코드 · 라운드 ──
@@ -2490,11 +2658,18 @@ html:has(body.tp-shake) { overflow: hidden; }
     if (fa >= 0 && fa === luFam(b)) return true;
     return (x.length >= 2 && y.indexOf(x) >= 0) || (y.length >= 2 && x.indexOf(y) >= 0);
   }
+  // 사옥 (11-26 사용자 '시작할 때 방배/분당/그 외 사옥을 선택') — 방배 · 분당은 주변 800m 메뉴, 그 외는 팀 메뉴 또는 기본 메뉴
+  function luSite() { return C.lunchSites && C.lunchSites[S.site] ? S.site : 'etc'; }
+  function luSiteSeed(seed) { var s = luSite(); return s === 'etc' ? seed : seed + '|site:' + s; } // 그 외는 예전 씨앗 그대로
   function luMenus() {
-    var list = Array.isArray(S.lunch) && S.lunch.length >= 2 ? S.lunch : C.lunch.map(function (x) {
-      var m = { name: x[0] }; C.lunchSteps.forEach(function (st, i) { m[st.key] = x[i + 1] ? x[i + 1].split(' ') : []; }); return m;
-    });
-    return list;
+    var conv = function (arr) { return arr.map(function (x) { var m = { name: x[0] }; C.lunchSteps.forEach(function (st, i) { m[st.key] = x[i + 1] ? x[i + 1].split(' ') : []; }); return m; }); };
+    if (luSite() !== 'etc') return conv(C.lunchSites[luSite()].menus);
+    return Array.isArray(S.lunch) && S.lunch.length >= 2 ? S.lunch : conv(C.lunch);
+  }
+  function luMenuLabel(menus) { var s = luSite(); return s !== 'etc' ? esc(C.lunchSites[s].label) + ' 주변 메뉴' : (S.lunch && S.lunch.length >= 2 ? '우리 팀 메뉴' : '기본 메뉴'); }
+  function luSiteHtml() {
+    var s = luSite(), list = [['bangbae', '방배 사옥'], ['bundang', '분당 사옥'], ['etc', '그 외']];
+    return '<div class="tp-lu-site" role="radiogroup" aria-label="어디서 먹어요?">' + list.map(function (x) { return '<button type="button" role="radio" data-site="' + x[0] + '" aria-checked="' + (s === x[0]) + '" class="' + (s === x[0] ? 'on' : '') + '">' + x[1] + '</button>'; }).join('') + '</div>';
   }
   function luFits(m, key, opt) { return !m[key] || !m[key].length || m[key].indexOf(opt) >= 0; }
   function luDecode(v) { var n = Math.round(Number(v) || 0), out = []; for (var i = C.lunchSteps.length - 1; i >= 0; i--) { out[i] = n % 10; n = Math.floor(n / 10); } return out; }
@@ -2634,7 +2809,7 @@ html:has(body.tp-shake) { overflow: hidden; }
     var idle = true; (function loopIdle(t) { if (!host.isConnected || !idle) return; paint(t || 0); requestAnimationFrame(loopIdle); })();
     // 손으로 돌리기 (11-24 사용자 '모바일에서 룰렛을 잘 고를 수 있도록 — 드래그해서 돌리거나 클릭해서') —
     //   원판을 손가락으로 잡고 돌리면 따라 돌고(칸 넘을 때 틱), 휙 놓거나 톡 누르면 돌기 시작. 당첨은 씨앗 그대로, 손으로 돌린 자리에서 출발
-    var drag = null, trigger = null, used = false;
+    var drag = null, trigger = null, used = false, flickV = 0;
     var angAt = function (e) { var b = cv.getBoundingClientRect(); return Math.atan2(e.clientY - (b.top + b.height / 2), e.clientX - (b.left + b.width / 2)) * 180 / Math.PI; };
     cv.style.touchAction = 'none'; cv.style.cursor = 'grab';
     cv.addEventListener('pointerdown', function (e) { if (used) return; drag = { a: angAt(e), t: performance.now(), v: 0, moved: 0, last: under(ang) }; cv.style.cursor = 'grabbing'; try { cv.setPointerCapture(e.pointerId); } catch (err) { /* 무시 */ } });
@@ -2649,33 +2824,45 @@ html:has(body.tp-shake) { overflow: hidden; }
       if (!drag) return; var d = drag; drag = null; cv.style.cursor = used ? 'default' : 'grab';
       if (used) return;
       var flick = Math.abs(d.v) > 0.12 && performance.now() - d.t < 120; // 손을 멈추지 않고 놓음
-      if ((d.moved < 6 || flick) && trigger) trigger(); // 톡 누름 · 휙 놓음 (천천히 돌리다 멈추고 놓으면 그대로 둠)
+      if ((d.moved < 6 || flick) && trigger) { flickV = flick ? d.v : 0; trigger(); } // 톡 누름 · 휙 놓음 (천천히 돌리다 멈추고 놓으면 그대로 둠)
     };
     cv.addEventListener('pointerup', release);
     cv.addEventListener('pointercancel', function () { drag = null; });
     host.querySelector('.tp-rl-hub').addEventListener('click', function () { if (!used && trigger) trigger(); });
     function spin(onEnd) {
       if (used) return; used = true; drag = null; cv.style.cursor = 'default';
-      // 칸 안 자리도 씨앗으로 — 어느 화면이든 같은 칸(손으로 돌린 만큼은 출발 자리만 바뀜)
-      var r = rng(seed + '|spot'), pos = 0.22 + r() * 0.56, turns = 6 + Math.floor(r() * 3);
-      var target = (win + pos) * seg, a0 = ang, want = ((360 - target) % 360 + 360) % 360, base = a0 + turns * 360;
-      var final = base + ((want - base) % 360 + 360) % 360;
-      var over = (pos + 0.32) * seg; // 다음 칸(win-1)으로 0.32칸 넘어감
-      var DUR = 5600, HOLD = 380, BACK = 680, t0 = performance.now(), last = under(a0);
+      // 11-26 사용자 '억지로 전 칸으로 보내는 느낌 — 드래그 속도에 따라 마지막에 멈추는 부분이 느리게, 아슬아슬할 때만 전 칸으로'
+      //   · 휙 돌린 세기(각속도)와 방향 → 바퀴 수 · 도는 시간(단추 · 톡은 중간 세기, 시계 방향)
+      //   · 끝은 길게 천천히(감속 곡선 3.2제곱 — 마지막 두어 칸을 기어가듯 넘음)
+      //   · 멈출 자리는 씨앗으로 셋 중 하나: 보통(칸 가운데쯤) · 칸막이 바로 앞에서 겨우 멈춤 · 칸막이를 살짝 넘었다가 바늘에 밀려 되돌아옴(약 4판에 1판)
+      //   당첨 칸은 씨앗 그대로라 어느 화면 · 어떤 세기로 돌려도 같다(바뀌는 건 도는 모습뿐)
+      var v = flickV; flickV = 0;
+      var dir = v < 0 ? -1 : 1, vv = v ? Math.abs(v) : 1.0, s = Math.max(0.1, Math.min(1, (vv - 0.1) / 1.4)), K = 3.2;
+      var r = rng(seed + '|spot'), kind = r(), near = kind < 0.24, edge = !near && kind < 0.5;
+      var e0 = near ? 0.08 + r() * 0.1 : edge ? 0.025 + r() * 0.06 : 0.2 + r() * 0.6; // 나가는 쪽 칸막이에서 몇 칸 앞에 서나
+      var cross = near ? 0.05 + r() * 0.1 : 0; // 아슬아슬 — 칸막이를 이만큼 넘었다가 되돌아옴
+      // 세게 휙 → 오래 · 멀리, 약하게 → 짧게(4.5~8초). 도는 거리는 처음 속도가 손가락 속도와 비슷하게(속도 × 시간 ÷ K), 2~12바퀴
+      var DUR = 4500 + s * 3500, dist = Math.max(720, Math.min(4300, vv * DUR / K));
+      var pos = dir > 0 ? e0 : 1 - e0;
+      var a0 = ang, want = ((360 - (win + pos) * seg) % 360 + 360) % 360, base = a0 + dir * dist;
+      var final = dir > 0 ? base + ((want - base) % 360 + 360) % 360 : base - ((base - want) % 360 + 360) % 360;
+      var over = near ? dir * (e0 + cross) * seg : 0;
+      var HOLD = near ? 460 : 0, BACK = near ? 720 : 0, t0 = performance.now(), last = under(a0);
       idle = false; spinning = true; SFX.go();
       (function frame(now) {
         if (!host.isConnected) return;
         var t = now - t0;
         if (t < DUR) {
-          var p = t / DUR; ang = a0 + (final + over - a0) * (1 - Math.pow(1 - p, 4));
+          var p = t / DUR; ang = a0 + (final + over - a0) * (1 - Math.pow(1 - p, K));
           bent = 0;
+          if (p > 0.82) spinning = false; // 거의 멈춤 — 전구도 천천히
         } else if (t < DUR + HOLD) {
-          // 바늘에 걸림 — 살짝 떨며 버팀
-          spinning = false; ang = final + over - Math.sin((t - DUR) / HOLD * Math.PI) * seg * 0.06; bent = -18 + Math.sin((t - DUR) / 40) * 3;
+          // 바늘에 걸림 — 칸막이 너머에서 살짝 떨며 버팀
+          spinning = false; ang = final + over - dir * Math.sin((t - DUR) / HOLD * Math.PI) * seg * 0.04; bent = -16 * dir + Math.sin((t - DUR) / 40) * 3;
         } else if (t < DUR + HOLD + BACK) {
-          // 한 칸 되돌아옴(살짝 지나쳤다가 제자리)
-          var q = (t - DUR - HOLD) / BACK, c1 = 1.70158, c3 = c1 + 1, e = 1 + c3 * Math.pow(q - 1, 3) + c1 * Math.pow(q - 1, 2);
-          ang = final + over - over * e; bent = -18 * (1 - q);
+          // 바늘에 밀려 당첨 칸으로 되돌아옴(살짝 지나쳤다가 제자리)
+          var q = (t - DUR - HOLD) / BACK, c1 = 1.2, c3 = c1 + 1, eb = 1 + c3 * Math.pow(q - 1, 3) + c1 * Math.pow(q - 1, 2);
+          ang = final + over - over * eb; bent = -16 * dir * (1 - q);
         } else {
           ang = final; bent = 0; lit = win; spinning = false;
           paint(now); idle = true; (function glow(t2) { if (!host.isConnected || !idle) return; paint(t2); requestAnimationFrame(glow); })();
@@ -2688,7 +2875,7 @@ html:has(body.tp-shake) { overflow: hidden; }
           if (t < DUR) { SFX.tick(); pin.classList.remove('flick'); void pin.getBoundingClientRect(); pin.classList.add('flick'); }
           else { SFX.clack(); buzz(40); }
         }
-        if (t >= DUR && t - 16 < DUR) { SFX.clack(); buzz([30, 30, 60]); }
+        if (t >= DUR && t - 16 < DUR) { if (near) { SFX.clack(); buzz([30, 30, 60]); } else if (edge) { SFX.clack(); buzz(40); } }
         paint(now);
         requestAnimationFrame(frame);
       })(t0);
@@ -2731,14 +2918,47 @@ html:has(body.tp-shake) { overflow: hidden; }
       });
     };
   }
+  // 다시 고르기 — 같은 방 · 라운드에서 몇 번째 판인지(씨앗에 넣어 다른 결과). 방 · 라운드가 바뀌면 0부터
+  var luTry = { key: '', n: 0 };
+  function luTryN() { var k = S.room + '|' + S.round; if (luTry.key !== k) { luTry.key = k; luTry.n = 0; } return luTry.n; }
+  function luTrySeed(seed) { var n = luTryN(); return n ? seed + '|again' + n : seed; }
+  /** 아래쪽 따로 — 다시 고르기 · 새 방 (11-26 사용자 '고르고 나서 메뉴를 다시 고르고 싶을 경우 방을 새로 만들 수 있는 부분 — 아래쪽에 따로?') */
+  function luAgainHtml(what) {
+    return '<div class="tp-lu-again"><b>' + ic('undo') + esc(what) + ' 다시 하고 싶으면</b><div class="tp-row center">' +
+      '<button class="tp-btn" data-again="re">' + ic('undo') + '처음부터 다시</button><button class="tp-btn ghost" data-again="room">' + ic('star') + '새 방 만들기</button></div>' +
+      '<p class="tp-muted tp-small">처음부터 다시 — 같은 방에서 다시 걸러요(휴대폰에서 올린 것은 그대로, 결과는 새로). 새 방 — 방 코드가 바뀌어 팀원이 QR 을 다시 찍어요.</p></div>';
+  }
+  function luAgainBind(box, game) {
+    box.querySelectorAll('[data-again]').forEach(function (b) {
+      b.onclick = function () {
+        if (b.dataset.again === 're') { luTryN(); luTry.n++; SFX.tap(); openGame(game); setTimeout(function () { var m = Q('#tpMain'); if (m) m.scrollIntoView({ block: 'start' }); window.scrollTo(0, 0); }, 30); return; }
+        if (!window.confirm('새 방을 만들까요? 방 코드가 바뀌어 팀원이 QR 을 다시 찍어야 해요.')) return;
+        S.room = newRoom(); S.round = 1; save(); roomChip(); SFX.beep(); setup(); window.scrollTo(0, 0);
+      };
+    });
+  }
+  /** 시작하면 설명 판을 아래로 작게 (11-26 사용자 '화면 높이의 50% — 처음 시작할 때 한 번만 보여 주고, 그 뒤에는 아래쪽에 작게' ·
+   *  '메뉴 고르는 것을 위에, 그 뒤에 선택한 내용, 아래에 설명') */
+  function luIntroDown(body, intro, text) {
+    var q = intro.querySelector('.tp-q'); if (q && text) q.textContent = text;
+    intro.classList.add('mini'); body.appendChild(intro);
+  }
+  function luToTop(el) { if (!el) return; var r = el.getBoundingClientRect(), top = Q('.tp-tabs'), hb = top ? top.getBoundingClientRect().bottom : 0; if (r.top < hb + 4 || r.top > innerHeight * 0.45) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   var luMenuHost = function (body) {
     var menus = luMenus(), votes = [], poll = 0, ran = false;
-    body.innerHTML = '<div class="tp-board"><span class="tp-qn">오늘 점심</span><div class="tp-q tp-lu-q1">휴대폰에서 내 취향 4가지를 골라 올려 주세요</div>' +
-      '<div class="tp-lu-meta">' + (S.lunch && S.lunch.length >= 2 ? '우리 팀 메뉴' : '기본 메뉴') + ' <b>' + menus.length + '</b>개 · 시간 → 양 → 온도 → 종류 순으로 걸러요</div></div>' +
-      '<div class="tp-row center"><span class="tp-sb-auto-st" id="luAuto">점수 중계 확인 중…</span></div>' +
-      '<div class="tp-lu-who" id="luWho"></div>' +
-      '<div class="tp-row center" id="luBtns"><button class="tp-btn primary xl" id="luGo">' + ic('play') + '결과 보기</button><button class="tp-btn lg" id="luHand">' + ic('tv') + '휴대폰 없이 — 진행자가 고르기</button></div>' +
-      '<ol class="tp-lu-steps" id="luSteps"></ol><div id="luFin"></div>';
+    body.innerHTML = '<div class="tp-board tp-lu-intro" id="luIntro"><span class="tp-qn">오늘 점심</span><div class="tp-q tp-lu-q1">휴대폰에서 내 취향 4가지를 골라 올려 주세요</div>' +
+      luSiteHtml() +
+      '<div class="tp-lu-meta">' + luMenuLabel() + ' <b>' + menus.length + '</b>개 · 시간 → 양 → 온도 → 종류 순으로 걸러요' + (luSite() !== 'etc' ? '<span class="tp-lu-where"> · ' + esc(C.lunchSites[luSite()].where) + ' 걸어서 800m 안</span>' : '') + '</div></div>' +
+      '<div class="tp-lu-top" id="luTop">' +
+        '<div class="tp-row center"><span class="tp-sb-auto-st" id="luAuto">점수 중계 확인 중…</span></div>' +
+        '<div class="tp-lu-who" id="luWho"></div>' +
+        '<div class="tp-row center" id="luBtns"><button class="tp-btn primary xl" id="luGo">' + ic('play') + '결과 보기</button><button class="tp-btn lg" id="luHand">' + ic('tv') + '휴대폰 없이 — 진행자가 고르기</button></div>' +
+        '<div id="luFin"></div>' +
+      '</div><ol class="tp-lu-steps" id="luSteps"></ol><div id="luAgain"></div>';
+    var intro = Q('#luIntro', body);
+    intro.querySelectorAll('[data-site]').forEach(function (b) { b.onclick = function () { if (ran || b.dataset.site === luSite()) return; S.site = b.dataset.site; store.set('lunchSite', S.site); SFX.tap(); openGame('lunch'); }; });
+    var again = function () { var a = Q('#luAgain', body); if (!a) return; a.innerHTML = luAgainHtml('메뉴 고르기를'); luAgainBind(a, 'lunch'); };
+    if (luTryN()) Q('.tp-qn', intro).textContent = '오늘 점심 · 다시 ' + luTryN() + '번째';
     function who() {
       var el = Q('#luWho'); if (!el) return;
       el.innerHTML = votes.length ? votes.map(function (v) { return '<span>' + ic('check') + esc(v.name) + '</span>'; }).join('') : '<span class="none">아직 올린 사람이 없어요</span>';
@@ -2766,20 +2986,25 @@ html:has(body.tp-shake) { overflow: hidden; }
       var people = votes.map(function (v) { return { name: String(v.name || ''), d: luDecode(v.value), v: Math.round(Number(v.value) || 0) }; })
         .sort(function (a, b) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; });
       var P = people.length, per = Math.max(2, Math.min(4, Math.ceil(LU_MAX / P))), target = Math.max(LU_MIN, Math.min(LU_MAX, P * per));
-      var seed = seedOf('lunch') + '|' + people.map(function (p) { return p.name + ':' + p.v; }).join(',');
+      var seed = luTrySeed(luSiteSeed(seedOf('lunch') + '|' + people.map(function (p) { return p.name + ':' + p.v; }).join(',')));
       var res = luRun(menus, people.map(function (p) { return p.d; }), seed, target);
       var list = Q('#luSteps'), i = 0;
+      luIntroDown(body, intro, '휴대폰 취향 ' + P + '명으로 걸러요 — 단계마다 가장 많이 고른 쪽으로, 룰렛 칸 수만큼 남으면 멈춰요');
+      luToTop(Q('#luTop'));
       (function next() {
         if (i < res.steps.length) { list.insertAdjacentHTML('beforeend', luStepHtml(res.steps[i], menus)); SFX.reveal(); i++; setTimeout(next, 1500); return; }
-        setTimeout(function () { luFinal(Q('#luFin'), menus, luPick(menus, res.alive, people, target, per, seed), seed); Q('#luFin').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 600);
+        setTimeout(function () { luFinal(Q('#luFin'), menus, luPick(menus, res.alive, people, target, per, seed), seed, again); luToTop(Q('#luFin')); }, 600);
       })();
     };
     Q('#luHand').onclick = function () {
       ran = true; clearInterval(poll); Q('#luBtns').hidden = true; Q('#luWho').hidden = true; Q('#luAuto').hidden = true;
+      luIntroDown(body, intro, '진행자가 고르기 — 단계마다 손을 들어 정하고 위에서 눌러요. 고른 단계는 아래에 쌓여요');
+      luToTop(Q('#luTop'));
       var alive = menus.map(function (m, i) { return i; }), s = 0, picked = [];
       var handFinal = function () {
-        var seed = seedOf('lunch-hand') + '|' + picked.join(',');
-        luFinal(Q('#luFin'), menus, luPick(menus, alive, [], Math.min(LU_MAX, alive.length), 0, seed), seed);
+        var seed = luTrySeed(luSiteSeed(seedOf('lunch-hand') + '|' + picked.join(',')));
+        luFinal(Q('#luFin'), menus, luPick(menus, alive, [], Math.min(LU_MAX, alive.length), 0, seed), seed, again);
+        luToTop(Q('#luFin'));
       };
       function ask() {
         while (s < C.lunchSteps.length && alive.length > LU_MAX) {
@@ -2866,7 +3091,7 @@ html:has(body.tp-shake) { overflow: hidden; }
       return { join: join, lunch: lunch };
     });
   }
-  function cfSeed(names) { return seedOf('coffee') + '|' + names.join(','); }
+  function cfSeed(names) { return luTrySeed(seedOf('coffee') + '|' + names.join(',')); } // [처음부터 다시] 를 누른 진행자 화면만 새 결과
   function cfWinner(names) { return Math.floor(rng(cfSeed(names) + '|win')() * names.length); }
   /** 뽑기 — box 에 [사다리 | 룰렛] 과 그림. names 는 가나다 순 */
   function cfDraw(box, names, how, done) {
@@ -2938,15 +3163,19 @@ html:has(body.tp-shake) { overflow: hidden; }
     };
   }
   function cfHost(body) {
-    var got = { join: [], lunch: [] }, manual = [], skip = {}, poll = 0, ran = false, how = S.cfHow === 'roulette' ? 'roulette' : 'ladder';
-    body.innerHTML = '<div class="tp-board"><span class="tp-qn">오늘의 커피</span><div class="tp-q tp-lu-q1">커피 쏘기 — 한 명을 뽑아요</div>' +
+    var got = { join: [], lunch: [] }, manual = [], skip = {}, poll = 0, ran = false, hand = false, how = S.cfHow === 'roulette' ? 'roulette' : 'ladder';
+    var lastNames = []; try { lastNames = JSON.parse(store.get('cfManual') || '[]').filter(function (n) { return typeof n === 'string'; }).slice(0, 30); } catch (e) { lastNames = []; }
+    body.innerHTML = '<div class="tp-board tp-lu-intro" id="cfIntro"><span class="tp-qn">오늘의 커피</span><div class="tp-q tp-lu-q1">커피 쏘기 — 한 명을 뽑아요</div>' +
       '<div class="tp-lu-meta">휴대폰에서 [커피 뽑기 참가] 또는 점심 취향을 올린 사람이 모여요 · 이름을 직접 넣어도 돼요</div></div>' +
       '<div class="tp-row center"><span class="tp-sb-auto-st" id="cfAuto">중계 확인 중…</span></div>' +
+      '<div class="tp-row center" id="cfHandRow"><button class="tp-btn" id="cfHand">' + ic('tv') + '휴대폰 없이 — 진행자가 이름 넣고 뽑기</button></div>' +
+      '<div class="tp-cf-add"><input id="cfName" maxlength="80" enterkeyhint="done" placeholder="이름 · 닉네임 (여러 명은 띄어쓰기 · 쉼표로)"><button class="tp-btn" id="cfAdd">' + ic('users') + '더하기</button></div>' +
+      (lastNames.length ? '<div class="tp-row center tp-cf-last"><button class="tp-linkbtn" id="cfLast">' + ic('undo') + '지난번 이름 불러오기 (' + lastNames.length + '명)</button></div>' : '') +
       '<div class="tp-cf-who" id="cfWho"></div>' +
-      '<div class="tp-cf-add"><input id="cfName" maxlength="12" placeholder="이름 넣기(엔터)"><button class="tp-btn" id="cfAdd">' + ic('users') + '더하기</button></div>' +
       '<div class="tp-cf-how"><button data-how="ladder">' + ic('ladder') + '사다리 타기</button><button data-how="roulette">' + ic('play') + '룰렛 돌리기</button></div>' +
       '<div class="tp-row center" id="cfBtns"><button class="tp-btn primary xl" id="cfStart">' + ic('coffee') + '커피 쏠 사람 뽑기</button></div>' +
-      '<div id="cfBox"></div>';
+      '<div id="cfBox"></div><div id="cfAgain"></div>';
+    var intro = Q('#cfIntro', body);
     var names = function () { return cfNames(got.join.concat(got.lunch, manual)).filter(function (n) { return !skip[n]; }); };
     var who = function () {
       var el = Q('#cfWho'); if (!el) return;
@@ -2955,12 +3184,20 @@ html:has(body.tp-shake) { overflow: hidden; }
       var st = Q('#cfStart'); if (st) st.disabled = names().length < 2;
     };
     var pull = function () {
-      if (ran) return;
-      cfPull().then(function (r) { got = r; var st = Q('#cfAuto'); if (!st) return; st.className = 'tp-sb-auto-st on'; st.innerHTML = '<span class="long">방 ' + esc(S.room) + ' · 라운드 ' + S.round + ' — 참가 ' + r.join.length + '명 · 점심 취향 ' + r.lunch.length + '명 · 3초마다 새로</span><span class="short">방 ' + esc(S.room) + ' · ' + S.round + '라운드 · ' + cfNames(r.join.concat(r.lunch)).length + '명</span>'; who(); })
+      if (ran || hand) return;
+      cfPull().then(function (r) { if (hand) return; got = r; var st = Q('#cfAuto'); if (!st) return; st.className = 'tp-sb-auto-st on'; st.innerHTML = '<span class="long">방 ' + esc(S.room) + ' · 라운드 ' + S.round + ' — 참가 ' + r.join.length + '명 · 점심 취향 ' + r.lunch.length + '명 · 3초마다 새로</span><span class="short">방 ' + esc(S.room) + ' · ' + S.round + '라운드 · ' + cfNames(r.join.concat(r.lunch)).length + '명</span>'; who(); })
         .catch(function (err) { var st = Q('#cfAuto'); if (st) { st.className = 'tp-sb-auto-st off'; st.textContent = '중계를 읽지 못했어요(' + ((err && err.message) || '') + ') — 이름을 직접 넣어 뽑아도 돼요'; } });
     };
-    var add = function () { var v = Q('#cfName').value.replace(/\s+/g, ' ').trim().slice(0, 12); if (!v) return; if (manual.indexOf(v) < 0) manual.push(v); delete skip[v]; Q('#cfName').value = ''; SFX.tap(); who(); };
+    // 여러 명을 한 번에 — 띄어쓰기 · 쉼표 · 줄바꿈 · 가운뎃점으로 나눔 (11-26 사용자 '커피 쏘기도 진행자가 고르기 — 닉네임이나 이름 넣고 돌릴 수 있게')
+    var addNames = function (list) { list.forEach(function (v) { v = String(v || '').trim().slice(0, 12); if (!v) return; if (manual.indexOf(v) < 0) manual.push(v); delete skip[v]; }); };
+    var add = function () { var raw = Q('#cfName').value; var list = raw.split(/[\s,，、·;\/]+/); if (!list.join('')) return; addNames(list); Q('#cfName').value = ''; SFX.tap(); who(); Q('#cfName').focus(); };
     Q('#cfAdd').onclick = add; Q('#cfName').onkeydown = function (e) { if (e.key === 'Enter') add(); };
+    if (Q('#cfLast')) Q('#cfLast').onclick = function () { addNames(lastNames); this.parentNode.hidden = true; SFX.tap(); who(); };
+    Q('#cfHand').onclick = function () {
+      hand = true; clearInterval(poll); got = { join: [], lunch: [] }; Q('#cfHandRow').hidden = true; Q('#cfAuto').hidden = true;
+      luIntroDown(body, intro, '진행자가 이름 넣고 뽑기 — 위 칸에 이름을 넣고(여러 명은 띄어쓰기 · 쉼표로), 이름을 누르면 빠져요');
+      who(); luToTop(Q('.tp-cf-add', body)); setTimeout(function () { var i = Q('#cfName'); if (i) i.focus(); }, 350);
+    };
     Q('#cfWho').onclick = function (e) { var b = e.target.closest('[data-n]'); if (!b || ran) return; var n = b.dataset.n; if (skip[n]) delete skip[n]; else skip[n] = 1; SFX.tap(); who(); };
     var setHow = function (h) { how = h; S.cfHow = h; store.set('cfHow', h); body.querySelectorAll('[data-how]').forEach(function (b) { b.classList.toggle('on', b.dataset.how === h); }); };
     body.querySelectorAll('[data-how]').forEach(function (b) { b.onclick = function () { if (!ran) { SFX.tap(); setHow(b.dataset.how); } }; });
@@ -2968,8 +3205,11 @@ html:has(body.tp-shake) { overflow: hidden; }
     Q('#cfStart').onclick = function () {
       var list = names(); if (list.length < 2) { toast('두 명 이상이어야 뽑을 수 있어요', 'bad'); return; }
       ran = true; clearInterval(poll); Q('#cfBtns').hidden = true; body.querySelector('.tp-cf-add').hidden = true; body.querySelector('.tp-cf-how').classList.add('locked');
-      cfDraw(Q('#cfBox'), list, how);
-      setTimeout(function () { var bx = Q('#cfBox'); if (bx) bx.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+      var hr = Q('#cfHandRow'); if (hr) hr.hidden = true; var la = body.querySelector('.tp-cf-last'); if (la) la.hidden = true;
+      if (manual.length) store.set('cfManual', JSON.stringify(manual.slice(0, 30)));
+      if (!intro.classList.contains('mini')) luIntroDown(body, intro, '커피 쏘기 — ' + list.length + '명 중 한 명 · 같은 사람이 모였으면 어느 화면 · 어느 방법이든 같은 사람');
+      cfDraw(Q('#cfBox'), list, how, function () { var a = Q('#cfAgain', body); if (!a) return; a.innerHTML = luAgainHtml('커피 뽑기를'); luAgainBind(a, 'lunch'); });
+      setTimeout(function () { luToTop(Q('.tp-cf-how', body)); }, 100);
     };
     who(); pull(); poll = setInterval(pull, 3000);
     return { off: function () { clearInterval(poll); } };
