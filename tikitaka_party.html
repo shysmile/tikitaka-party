@@ -528,6 +528,37 @@ html:has(body.tp-shake) { overflow: hidden; }
 .tp-lu-where { font-size: 0.9em; }
 @media (max-width: 600px) { .tp-lu-site button { height: 34px; padding: 0 11px; font-size: 14px; } .tp-lu-where { display: none; } }
 
+/* ═══ 커피 사다리 — 하늘 판 (11-26 사용자 '휴대폰에서 사다리 탈 때 디자인 적용') ═══
+   플러그인 사다리(하늘 판 · 입체 막대 · 빛나는 경로 · 결과 티켓)를 따름. 칸 폭(--ldc)은 party.js 가 화면 폭 ÷ 사람 수로 정함(46~120px) */
+.tp-ld.sky { position: relative; display: block; padding: 10px; border-radius: 22px; background: linear-gradient(180deg, #eef5ff, #f7f2ff); box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.18), 0 10px 30px rgba(0, 0, 0, 0.25); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tp-ld-in { margin: 0 auto; }
+.tp-ld-top, .tp-ld-bot { display: grid; grid-auto-flow: column; grid-auto-columns: var(--ldc, 80px); }
+.tp-ld-mid canvas { display: block; border-radius: 16px; box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.12);
+  background: radial-gradient(40% 30% at 85% 8%, rgba(255, 236, 179, 0.75), transparent 70%), linear-gradient(180deg, #c7e4ff 0%, #e4f0ff 45%, #f3ecff 100%); }
+.tp-ld-st { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; padding: 2px 2px 6px; }
+.tp-ld-st i { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--c); font-style: normal; font-size: 17px; font-weight: 900;
+  box-shadow: 0 0 0 3px var(--c), 0 4px 10px rgba(15, 23, 42, 0.18); transition: background 0.25s, color 0.25s, transform 0.25s; }
+.tp-ld-st.on i { background: var(--c); color: #fff; transform: translateY(-2px); }
+.tp-ld-st.win i { background: linear-gradient(135deg, #fde047, #f59e0b); color: #78350f; box-shadow: 0 0 0 3px #fff, 0 0 18px rgba(245, 158, 11, 0.9); }
+.tp-ld-st span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1e293b; font-size: 13px; font-weight: 700; }
+.tp-ld-end { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; min-width: 0; min-height: 62px; margin: 8px 3px 0; padding: 7px 2px 8px; border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7); border: 2px dashed #a5b4fc; color: #4f46e5; }
+.tp-ld-end::before { content: ""; position: absolute; top: -9px; left: 50%; margin-left: -6px; width: 12px; height: 12px; border-radius: 50%; background: #3b4a6b; box-shadow: 0 0 0 3px #fff; }
+.tp-ld-end em { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--c); color: #fff; font-style: normal; font-size: 13px; font-weight: 900; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); animation: tp-ld-pop 0.35s; }
+.tp-ld-end em.q { background: #c7d2fe; color: #4f46e5; box-shadow: none; animation: tp-ld-breathe 1.6s ease-in-out infinite; }
+.tp-ld-end b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 800; }
+.tp-ld-end.pass { border: 0; background: linear-gradient(180deg, #f6ffed, #d9f7be); color: #237804; box-shadow: 0 4px 10px rgba(56, 158, 13, 0.18), inset 0 0 0 1px #b7eb8f; }
+.tp-ld-end.hit { border: 0; background: linear-gradient(180deg, #fff7d6, #fde68a); color: #92400e; box-shadow: 0 0 0 2px #f59e0b, 0 6px 20px rgba(245, 158, 11, 0.55); animation: tp-ld-hit 0.6s; }
+@keyframes tp-ld-pop { 0% { transform: scale(0.3); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes tp-ld-breathe { 50% { box-shadow: 0 0 0 5px rgba(165, 180, 252, 0.35); } }
+@keyframes tp-ld-hit { 0% { transform: scale(0.7) rotate(-6deg); } 60% { transform: scale(1.12) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+.tp-ld-in.narrow .tp-ld-st i { width: 30px; height: 30px; font-size: 14px; }
+.tp-ld-in.narrow .tp-ld-st span, .tp-ld-in.narrow .tp-ld-end b { font-size: 11px; }
+.tp-ld-in.narrow .tp-ld-end { margin: 8px 2px 0; min-height: 54px; border-radius: 11px; }
+.tp-ld-in.narrow .tp-ld-end em { width: 22px; height: 22px; font-size: 11px; }
+.tp-btn.tp-ld-go { background: linear-gradient(135deg, #22c55e, #0ea5e9 60%, #6366f1); box-shadow: 0 10px 22px rgba(14, 165, 233, 0.35), inset 0 -4px 0 rgba(0, 0, 0, 0.15); }
+@media (max-width: 520px) { .tp-ld.sky { margin-left: -4px; margin-right: -4px; padding: 8px; border-radius: 18px; } }
+
 </style>
 </head>
 <body data-single="1">
@@ -1854,8 +1885,91 @@ html:has(body.tp-shake) { overflow: hidden; }
     fail: function () { tone(196, 0.35, 'sawtooth', 0.15); tone(147, 0.45, 'sawtooth', 0.13, 0.18); },
     reveal: function () { tone(392, 0.12, 'triangle', 0.15); tone(523, 0.12, 'triangle', 0.15, 0.1); tone(784, 0.3, 'triangle', 0.2, 0.2); },
     clack: function () { tone(140, 0.12, 'square', 0.16); tone(95, 0.18, 'triangle', 0.18, 0.03); }, // 룰렛 바늘에 걸림
+    tock: function () { tone(520, 0.05, 'triangle', 0.05); }, // 사다리 모퉁이
   };
   function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* 없음 */ } }
+  // ── 배경 음악 (11-26 사용자 '사다리에 New Rally-X BGM') — 원곡은 남의 저작물이고 이 페이지는 공개 주소라 쓰지 않는다.
+  //   옛 아케이드 추격전처럼 빠르고 통통 튀는 느낌만 참고해 여기서 새로 지은 8비트 곡(가락 · 화음 진행은 새로). 파일 없이 Web Audio 로 연주.
+  //   BGM.play(kind, level, alive) — 이미 같은 곡이면 세기만 바꿈. alive() 가 false 가 되면(화면이 바뀜) 저절로 멈춘다. 소리 끔이면 조용히.
+  var BGM = (function () {
+    var hz = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
+    var TUNES = {
+      // 사다리 — A 단조, 156 BPM. 8분음표 칸(null 은 쉼), 마디마다 화음 근음(MIDI)
+      ladder: {
+        bpm: 156,
+        roots: [45, 45, 41, 43, 45, 45, 41, 40],
+        lead: [
+          69, 72, 76, 72, 74, 72, 69, 67,
+          69, null, 76, null, 77, 76, 74, 72,
+          72, 77, 81, 77, 76, 74, 72, 74,
+          74, 71, 67, 71, 74, 77, 76, 74,
+          76, 79, 81, 79, 76, 72, 74, 76,
+          77, 76, 74, 72, 74, 72, 69, 72,
+          72, 74, 77, 81, 79, 77, 76, 77,
+          76, null, 71, null, 68, 71, 74, null,
+        ],
+      },
+    };
+    var cur = null, noise = null;
+    function noiseBuf(c) {
+      if (noise) return noise;
+      noise = c.createBuffer(1, Math.floor(c.sampleRate * 0.1), c.sampleRate);
+      var d = noise.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      return noise;
+    }
+    function note(c, dest, type, f, t, dur, vol, cut) {
+      var o = c.createOscillator(), g = c.createGain(), last = g;
+      o.type = type; o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.005); g.gain.exponentialRampToValueAtTime(vol * 0.5, t + dur * 0.4); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g);
+      if (cut) { var lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cut; g.connect(lp); last = lp; }
+      last.connect(dest); o.start(t); o.stop(t + dur + 0.02);
+    }
+    function hat(c, dest, t, vol) {
+      var s = c.createBufferSource(), hp = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = noiseBuf(c); hp.type = 'highpass'; hp.frequency.value = 7000;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+      s.connect(hp); hp.connect(g); g.connect(dest); s.start(t); s.stop(t + 0.05);
+    }
+    function kick(c, dest, t, vol) {
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+      o.connect(g); g.connect(dest); o.start(t); o.stop(t + 0.18);
+    }
+    function step(c, tune, i, t, dest) {
+      var e = 60 / tune.bpm / 2, bar = Math.floor(i / 8) % tune.roots.length, b8 = i % 8, root = tune.roots[bar];
+      var m = tune.lead[i % tune.lead.length];
+      if (m !== null) note(c, dest, 'square', hz(m), t, e * 0.9, 0.05, 3200);
+      note(c, dest, 'triangle', hz(root - 12 + (b8 % 2 ? 12 : 0)), t, e * 0.85, 0.16); // 옥타브로 통통 뛰는 베이스
+      if (b8 % 2) hat(c, dest, t, 0.035);
+      if (b8 === 0 || b8 === 4) kick(c, dest, t, 0.22);
+      if (b8 === 2 || b8 === 6) note(c, dest, 'square', hz(root + 24 + (bar % 2 ? 7 : 3)), t, e * 0.5, 0.018, 2400); // 엇박 화음 콕
+    }
+    function stop(fade) {
+      if (!cur) return;
+      var k = cur; cur = null; clearInterval(k.timer);
+      try { var t = k.c.currentTime; k.gain.gain.cancelScheduledValues(t); k.gain.gain.setValueAtTime(k.gain.gain.value, t); k.gain.gain.linearRampToValueAtTime(0, t + (fade || 0.4)); setTimeout(function () { try { k.gain.disconnect(); } catch (e) { /* 이미 */ } }, ((fade || 0.4) + 0.2) * 1000); } catch (e) { /* 닫힘 */ }
+    }
+    function level(v) {
+      if (!cur) return; cur.lv = v;
+      try { var t = cur.c.currentTime; cur.gain.gain.cancelScheduledValues(t); cur.gain.gain.setValueAtTime(cur.gain.gain.value, t); cur.gain.gain.linearRampToValueAtTime(0.55 * v, t + 0.5); } catch (e) { /* 닫힘 */ }
+    }
+    function play(kind, lv, alive) {
+      if (cur && cur.kind === kind) { cur.alive = alive || cur.alive; level(lv || 1); return; }
+      stop(0.2);
+      var c = ac(), tune = TUNES[kind]; if (!c || !tune) return;
+      var g = c.createGain(); g.gain.setValueAtTime(0, c.currentTime); g.gain.linearRampToValueAtTime(0.55 * (lv || 1), c.currentTime + 0.8); g.connect(c.destination);
+      var k = cur = { kind: kind, c: c, gain: g, i: 0, next: c.currentTime + 0.08, alive: alive, lv: lv || 1 };
+      k.timer = setInterval(function () {
+        if (cur !== k) return;
+        if (!S.sound || document.hidden || (k.alive && !k.alive())) { stop(0.3); return; }
+        var e = 60 / tune.bpm / 2;
+        while (k.next < c.currentTime + 0.15) { step(c, tune, k.i, k.next, g); k.i++; k.next += e; }
+      }, 30);
+    }
+    return { play: play, stop: stop, level: level };
+  })();
   var FX = { cv: null, parts: [], raf: 0 };
   function confetti(n) {
     if (!FX.cv) { FX.cv = document.createElement('canvas'); FX.cv.className = 'tp-confetti'; document.body.appendChild(FX.cv); }
@@ -1981,7 +2095,7 @@ html:has(body.tp-shake) { overflow: hidden; }
     if (b.dataset.mode) { if (S.mode !== b.dataset.mode) { S.mode = b.dataset.mode; save(); unmount(); shell(); } return; }
     if (b.dataset.game) { if (!S.room) { setup(); return; } SFX.tap(); openGame(b.dataset.game); return; }
     if (b.id === 'tpRoom') { setup(); return; }
-    if (b.id === 'tpSound') { S.sound = !S.sound; save(); b.innerHTML = ic(S.sound ? 'sound' : 'mute'); if (S.sound) SFX.beep(); return; }
+    if (b.id === 'tpSound') { S.sound = !S.sound; save(); b.innerHTML = ic(S.sound ? 'sound' : 'mute'); if (S.sound) SFX.beep(); else BGM.stop(0.2); return; }
     if (b.id === 'tpWake') { wake(); toast(WL ? '화면 꺼짐 방지 켜짐' : '이 브라우저는 화면 꺼짐 방지를 못 씁니다 — 휴대폰 화면 꺼짐 시간을 늘려 주세요'); return; }
     if (b.id === 'tpFull') { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (err) { /* 막힘 */ } return; }
   }
@@ -3105,59 +3219,114 @@ html:has(body.tp-shake) { overflow: hidden; }
       Q('#cfGo', box).onclick = function () { var b = this; b.disabled = true; b.innerHTML = ic('play') + '두구두구…'; wh.spin(function () { b.innerHTML = ic('coffee') + esc(names[w]); cel(); }); };
       return;
     }
-    // 사다리 — 세로줄 n 개, 가로줄은 씨앗으로. 당첨 칸은 당첨자가 닿는 자리 아래
-    box.innerHTML = '<div class="tp-ld"><canvas id="cfLd"></canvas></div><div class="tp-row center tp-lu-spinrow"><button class="tp-btn primary xl" id="cfGo">' + ic('ladder') + '사다리 타기</button></div>';
-    var cv = Q('#cfLd', box), n = names.length, colW = Math.max(64, Math.min(120, 760 / n)), Wd = Math.round(colW * n), TOP = 70, BOT = 64, Hh = 380, ROWS = 9;
-    cv.width = Wd * 2; cv.height = (TOP + Hh + BOT) * 2; cv.style.width = Wd + 'px'; cv.style.maxWidth = '100%';
-    var x = cv.getContext('2d'); x.scale(2, 2);
+    // 사다리 — 11-26 사용자 '휴대폰에서 사다리 탈 때 디자인 적용' → 플러그인 사다리(하늘 판 · 입체 막대 · 빛나는 경로 · 결과 티켓)를 따르고,
+    //   캔버스를 통째로 줄이던 것(휴대폰에서 이름이 깨알) 대신 화면 폭에 맞춰 칸 폭을 정해 다시 그린다. 이름 · 결과는 글자(HTML)로.
+    //   가로줄 · 당첨은 예전과 같은 씨앗 · 줄 수(9) — 화면 크기와 상관없이 TV · 휴대폰이 같은 사다리 · 같은 사람
+    box.innerHTML = '<div class="tp-ld sky"><div class="tp-ld-in" id="cfLdIn"><div class="tp-ld-top" id="cfLdTop"></div><div class="tp-ld-mid"><canvas id="cfLd"></canvas></div><div class="tp-ld-bot" id="cfLdBot"></div></div></div>' +
+      '<div class="tp-row center tp-lu-spinrow"><button class="tp-btn primary xl tp-ld-go" id="cfGo">' + ic('ladder') + '사다리 타기</button></div>';
+    var cv = Q('#cfLd', box), wrapEl = Q('.tp-ld', box), inEl = Q('#cfLdIn', box), n = names.length, ROWS = 9;
+    var PAL = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#f97316', '#14b8a6', '#ef4444', '#0ea5e9', '#22c55e', '#d946ef', '#eab308', '#6366f1', '#f43f5e', '#06b6d4', '#84cc16'];
     var r = rng(seed + '|ladder'), rungs = []; // rungs[row] = [왼쪽 세로줄 번호 …] (이웃끼리 붙지 않게)
     for (var row = 0; row < ROWS; row++) { var line = []; for (var k = 0; k < n - 1; k++) if (r() < 0.45 && line.indexOf(k - 1) < 0) line.push(k); rungs.push(line); }
-    var colX = function (i) { return colW * (i + 0.5); }, rowY = function (row) { return TOP + (row + 0.5) * Hh / ROWS; };
-    var pathOf = function (i) { var p = [[colX(i), TOP]], c = i; for (var row = 0; row < ROWS; row++) { var y = rowY(row); if (rungs[row].indexOf(c) >= 0) { p.push([colX(c), y]); c++; p.push([colX(c), y]); } else if (rungs[row].indexOf(c - 1) >= 0) { p.push([colX(c), y]); c--; p.push([colX(c), y]); } } p.push([colX(c), TOP + Hh]); return { pts: p, end: c }; };
-    var paths = names.map(function (nm, i) { return pathOf(i); }), hit = paths[w].end, done2 = {}, prog = {};
-    var PAL = ['#60a5fa', '#34d399', '#fbbf24', '#f472b6', '#a78bfa', '#fb923c', '#2dd4bf', '#f87171', '#38bdf8', '#4ade80', '#e879f9', '#facc15', '#818cf8', '#fb7185', '#22d3ee', '#a3e635'];
+    var colW = 80, Hh = 360, PADY = 14, x = cv.getContext('2d'), dpr = 1;
+    var colX = function (i) { return colW * (i + 0.5); }, rowY = function (row) { return PADY + (row + 0.5) * Hh / ROWS; };
+    var pathOf = function (i) { var p = [[colX(i), 0]], c = i; for (var row = 0; row < ROWS; row++) { var y = rowY(row); if (rungs[row].indexOf(c) >= 0) { p.push([colX(c), y]); c++; p.push([colX(c), y]); } else if (rungs[row].indexOf(c - 1) >= 0) { p.push([colX(c), y]); c--; p.push([colX(c), y]); } } p.push([colX(c), Hh + PADY * 2]); return { pts: p, end: c }; };
+    var paths = [], hit = 0, done2 = {}, prog = {}, corner = {}, tipX = null;
+    // 칸 폭 — 판 안쪽 폭 ÷ 사람 수 (46~120px). 좁으면 판만 옆으로 밀어 봄
+    function layout() {
+      var avail = Math.max(200, wrapEl.clientWidth - 20);
+      colW = Math.max(46, Math.min(120, Math.floor(avail / n)));
+      Hh = Math.round(Math.max(250, Math.min(380, avail * 0.82)));
+      var Wd = colW * n, H = Hh + PADY * 2;
+      dpr = Math.min(3, window.devicePixelRatio || 1);
+      cv.width = Math.round(Wd * dpr); cv.height = Math.round(H * dpr); cv.style.width = Wd + 'px'; cv.style.height = H + 'px';
+      inEl.style.width = Wd + 'px'; inEl.style.setProperty('--ldc', colW + 'px'); inEl.classList.toggle('narrow', colW < 52);
+      paths = names.map(function (nm, i) { return pathOf(i); }); hit = paths[w].end;
+    }
+    function tops() {
+      Q('#cfLdTop', box).innerHTML = names.map(function (nm, i) {
+        var on = prog[i] !== undefined;
+        return '<div class="tp-ld-st' + (on ? ' on' : '') + (i === w && done2[i] ? ' win' : '') + '" style="--c:' + PAL[i % PAL.length] + '"><i>' + esc(Array.from(nm)[0] || '?') + '</i><span>' + esc(nm) + '</span></div>';
+      }).join('');
+    }
+    function bots() {
+      Q('#cfLdBot', box).innerHTML = names.map(function (nm, b) {
+        var who = Object.keys(done2).filter(function (k) { return paths[k].end === b; })[0], open = who !== undefined, hitB = b === hit;
+        return '<div class="tp-ld-end' + (open ? (hitB ? ' hit' : ' pass') : '') + '">' +
+          (open ? '<em style="--c:' + PAL[who % PAL.length] + '">' + esc(Array.from(names[who])[0] || '?') + '</em>' : '<em class="q">?</em>') +
+          '<b>' + (open ? (hitB ? '☕ 커피' : '통과') : '두근') + '</b></div>';
+      }).join('');
+    }
+    // 막대 — 그림자 · 몸 · 윗면 빛 (세로줄 · 가로줄 공통)
+    function bar(x1, y1, x2, y2, col, wd) {
+      x.strokeStyle = 'rgba(15,23,42,.16)'; x.lineWidth = wd + 3;
+      x.beginPath(); x.moveTo(x1 + 2, y1 + 3); x.lineTo(x2 + 2, y2 + 3); x.stroke();
+      x.strokeStyle = col; x.lineWidth = wd;
+      x.beginPath(); x.moveTo(x1, y1); x.lineTo(x2, y2); x.stroke();
+      x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = Math.max(1.5, wd * 0.28);
+      var v = x1 === x2;
+      x.beginPath(); x.moveTo(x1 - (v ? wd * 0.2 : 0), y1 - (v ? 0 : wd * 0.2)); x.lineTo(x2 - (v ? wd * 0.2 : 0), y2 - (v ? 0 : wd * 0.2)); x.stroke();
+    }
+    function drawPath(i, pr) {
+      var pts = paths[i].pts, total = 0, s;
+      for (s = 1; s < pts.length; s++) total += Math.abs(pts[s][0] - pts[s - 1][0]) + Math.abs(pts[s][1] - pts[s - 1][1]);
+      var want = total * pr, walk = [pts[0]], tip = null, turns = 0;
+      for (s = 1; s < pts.length; s++) {
+        var d = Math.abs(pts[s][0] - pts[s - 1][0]) + Math.abs(pts[s][1] - pts[s - 1][1]);
+        if (want <= d) { var f = d ? want / d : 1; tip = [pts[s - 1][0] + (pts[s][0] - pts[s - 1][0]) * f, pts[s - 1][1] + (pts[s][1] - pts[s - 1][1]) * f]; walk.push(tip); break; }
+        walk.push(pts[s]); want -= d; turns = s;
+      }
+      var col = i === w && pr >= 1 ? '#f59e0b' : PAL[i % PAL.length], big = colW < 52 ? 0.75 : 1;
+      var stroke = function (wd, c, blur) {
+        x.save(); if (blur) { x.shadowColor = col; x.shadowBlur = blur; }
+        x.strokeStyle = c; x.lineWidth = wd * big; x.lineJoin = 'round';
+        x.beginPath(); x.moveTo(walk[0][0], walk[0][1]); for (var q = 1; q < walk.length; q++) x.lineTo(walk[q][0], walk[q][1]); x.stroke(); x.restore();
+      };
+      stroke(12, col, 16); stroke(4, 'rgba(255,255,255,.9)', 0);
+      if (tip && pr < 1) {
+        tipX = tip[0];
+        x.save(); x.shadowColor = col; x.shadowBlur = 20; x.fillStyle = col; x.beginPath(); x.arc(tip[0], tip[1], 13 * big, 0, 7); x.fill(); x.restore();
+        x.fillStyle = '#fff'; x.beginPath(); x.arc(tip[0], tip[1], 6 * big, 0, 7); x.fill();
+      }
+      return turns;
+    }
     function paint() {
-      x.clearRect(0, 0, Wd, TOP + Hh + BOT);
-      x.lineCap = 'round'; x.strokeStyle = 'rgba(255,255,255,0.28)'; x.lineWidth = 4;
-      for (var i = 0; i < n; i++) { x.beginPath(); x.moveTo(colX(i), TOP); x.lineTo(colX(i), TOP + Hh); x.stroke(); }
-      rungs.forEach(function (line, row) { line.forEach(function (k) { x.beginPath(); x.moveTo(colX(k), rowY(row)); x.lineTo(colX(k + 1), rowY(row)); x.stroke(); }); });
+      var Wd = colW * n, H = Hh + PADY * 2;
+      x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, Wd, H); x.lineCap = 'round';
+      var rw = colW < 52 ? 7 : 9;
+      for (var i = 0; i < n; i++) bar(colX(i), 0, colX(i), H, '#3b4a6b', rw);
+      rungs.forEach(function (line, row) { line.forEach(function (k) { bar(colX(k), rowY(row), colX(k + 1), rowY(row), '#8fa3c0', rw - 1); }); });
+      // 끝난 사람 경로는 옅게, 달리는 사람 · 당첨자는 진하게
       names.forEach(function (nm, i) {
         var pr = prog[i]; if (pr === undefined) return;
-        var pts = paths[i].pts, len = 0, segs = []; for (var s = 1; s < pts.length; s++) { var d = Math.abs(pts[s][0] - pts[s - 1][0]) + Math.abs(pts[s][1] - pts[s - 1][1]); segs.push(d); len += d; }
-        var want = len * pr; x.strokeStyle = i === w && pr >= 1 ? '#fde047' : PAL[i % PAL.length]; x.lineWidth = i === w && pr >= 1 ? 7 : 5;
-        x.beginPath(); x.moveTo(pts[0][0], pts[0][1]);
-        for (var s2 = 1; s2 < pts.length && want > 0; s2++) { var d2 = segs[s2 - 1], f = Math.min(1, want / d2); x.lineTo(pts[s2 - 1][0] + (pts[s2][0] - pts[s2 - 1][0]) * f, pts[s2 - 1][1] + (pts[s2][1] - pts[s2 - 1][1]) * f); want -= d2; }
-        x.stroke();
+        x.globalAlpha = done2[i] && i !== w ? 0.4 : 1;
+        var t = drawPath(i, pr); x.globalAlpha = 1;
+        if (!done2[i] && t > (corner[i] || 0)) { corner[i] = t; if (t > 1) SFX.tock(); }
       });
-      x.textAlign = 'center'; x.textBaseline = 'middle';
-      names.forEach(function (nm, i) {
-        var cx = colX(i), on = prog[i] !== undefined;
-        x.fillStyle = on ? PAL[i % PAL.length] : 'rgba(255,255,255,0.12)'; x.beginPath(); x.arc(cx, 30, 22, 0, Math.PI * 2); x.fill();
-        x.fillStyle = on ? '#1a1f3d' : '#fff'; x.font = '800 18px "Noto Sans KR", sans-serif'; x.fillText(Array.from(nm)[0] || '?', cx, 31);
-        x.fillStyle = '#e2e8f0'; x.font = '600 ' + (colW < 80 ? 12 : 14) + 'px "Noto Sans KR", sans-serif'; var t = nm.length > 5 && colW < 90 ? nm.slice(0, 4) + '…' : nm; x.fillText(t, cx, 62);
-      });
-      for (var b = 0; b < n; b++) {
-        var bx = colX(b), by = TOP + Hh + 30, open = Object.keys(done2).some(function (k) { return paths[k].end === b; });
-        x.fillStyle = open ? (b === hit ? '#fde047' : 'rgba(255,255,255,0.14)') : 'rgba(255,255,255,0.08)';
-        var bw2 = Math.min(colW - 10, 86); x.beginPath(); if (x.roundRect) x.roundRect(bx - bw2 / 2, by - 18, bw2, 36, 10); else x.rect(bx - bw2 / 2, by - 18, bw2, 36); x.fill();
-        x.fillStyle = open && b === hit ? '#1a1f3d' : '#cbd5e1'; x.font = '800 15px "Noto Sans KR", sans-serif';
-        x.fillText(open ? (b === hit ? '☕ 커피' : '통과') : '?', bx, by + 1);
-      }
     }
-    paint();
+    layout(); tops(); bots(); paint();
+    var onResize = function () { if (!cv.isConnected) { window.removeEventListener('resize', onResize); return; } layout(); paint(); };
+    window.addEventListener('resize', onResize);
+    BGM.play('ladder', 0.55, function () { return cv.isConnected; }); // 판이 뜨면 작게 — 출발하면 크게
     Q('#cfGo', box).onclick = function () {
-      var bt = this; bt.disabled = true; bt.innerHTML = ic('ladder') + '타는 중…'; SFX.go();
+      var bt = this; bt.disabled = true; bt.innerHTML = ic('ladder') + '타는 중…'; SFX.go(); BGM.play('ladder', 1, function () { return cv.isConnected; });
       // 한 사람씩 — 당첨자는 맨 마지막(긴장감). 한 줄에 0.45~1초
       var order = names.map(function (nm, i) { return i; }).filter(function (i) { return i !== w; }); order = shuffled(order, seed + '|order'); order.push(w);
       var per = Math.max(450, Math.min(1000, 9000 / n)), k = 0;
       (function one() {
-        if (k >= order.length) { bt.innerHTML = ic('coffee') + esc(names[w]); cel(); return; }
+        if (k >= order.length) { BGM.stop(0.6); bt.innerHTML = ic('coffee') + esc(names[w]); cel(); return; }
         var i = order[k], t0 = performance.now(), last = i === w;
+        if (last) BGM.level(1.35); // 마지막 한 줄 — 더 크게
+        tops();
         (function f(now) {
-          if (!box.isConnected) return;
-          var p = Math.min(1, (now - t0) / (last ? per * 2.2 : per)); prog[i] = last ? 1 - Math.pow(1 - p, 2) : p; paint();
+          if (!cv.isConnected) { BGM.stop(0.3); return; }
+          var p = Math.min(1, (now - t0) / (last ? per * 2.2 : per)); prog[i] = last ? 1 - Math.pow(1 - p, 2) : p; tipX = null; paint();
+          // 판이 화면보다 넓으면(휴대폰 · 사람이 많을 때) 달리는 사람을 따라 옆으로
+          if (tipX !== null && wrapEl.scrollWidth > wrapEl.clientWidth + 2) wrapEl.scrollLeft += (inEl.offsetLeft + tipX - wrapEl.clientWidth / 2 - wrapEl.scrollLeft) * 0.18;
           if (p < 1) { requestAnimationFrame(f); return; }
-          done2[i] = 1; paint(); if (last) { SFX.clack(); buzz([40, 30, 80]); } else SFX.tick(); k++; setTimeout(one, last ? 200 : 120);
+          done2[i] = 1; paint(); tops(); bots();
+          if (last) { SFX.clack(); buzz([40, 30, 80]); } else SFX.tick();
+          k++; setTimeout(one, last ? 200 : 120);
         })(t0);
       })();
     };
