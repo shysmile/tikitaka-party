@@ -3218,19 +3218,24 @@ html:has(body.tp-shake) { overflow: hidden; }
   function cfPull() {
     return Promise.all([relayGet('coffee').catch(function () { return null; }), relayGet('lunch').catch(function () { return null; })]).then(function (r) {
       if (!r[0] && !r[1]) throw new Error('중계를 읽지 못했어요');
-      var join = (r[0] || []).filter(function (x) { return Number(x.value) === 1; }).map(function (x) { return x.name; });
-      var out = (r[0] || []).filter(function (x) { return Number(x.value) === 0; }).map(function (x) { return x.name; });
-      var lunch = (r[1] || []).map(function (x) { return x.name; }).filter(function (n) { return out.indexOf(n) < 0; });
-      return { join: join, lunch: lunch };
+      // '#d<섞기 값>' — 진행자가 [뽑기] 때 올린 섞기 값(값 0 = 빠짐으로 올려 예전 판 화면에도 참가자로 안 잡힘). 사람 이름에서는 뺀다
+      var draws = (r[0] || []).filter(function (x) { return /^#d[0-9a-z]{1,10}$/.test(x.name); }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+      var people = (r[0] || []).filter(function (x) { return String(x.name).charAt(0) !== '#'; });
+      var join = people.filter(function (x) { return Number(x.value) === 1; }).map(function (x) { return x.name; });
+      var out = people.filter(function (x) { return Number(x.value) === 0; }).map(function (x) { return x.name; });
+      var lunch = (r[1] || []).map(function (x) { return x.name; }).filter(function (n) { return n.charAt(0) !== '#' && out.indexOf(n) < 0; });
+      return { join: join, lunch: lunch, draw: draws.length ? draws[0].name.slice(2) : '' };
     });
   }
-  function cfSeed(names) { return luTrySeed(seedOf('coffee') + '|' + names.join(',')); } // [처음부터 다시] 를 누른 진행자 화면만 새 결과
+  // 섞기 값(salt)이 있으면 그것으로 — 진행자 · 휴대폰이 같은 값을 쓰므로 [처음부터 다시](진행자 화면만의 횟수)는 섞지 않는다
+  function cfSeed(names, salt) { var b = seedOf('coffee') + '|' + names.join(','); return salt ? b + salt : luTrySeed(b); }
   // salt — 진행자가 이름 넣고 뽑기(휴대폰 없이)는 맞출 화면이 없으니 뽑을 때마다 새로 섞는다(11-26 사용자 '사다리 타면 항상 맨 왼쪽이 커피 — 랜덤으로':
   //   같은 방 · 라운드 · 이름이면 일부러 같은 결과라, 같은 방에서 몇 번을 해도 같은 자리였다). 휴대폰이 모이는 방식은 화면끼리 같아야 하므로 그대로
-  function cfWinner(names, salt) { return Math.floor(rng(cfSeed(names) + (salt || '') + '|win')() * names.length); }
+  //   11-26 밤 사용자 '휴대폰 모임 방식도 커피 자리 랜덤으로' — 진행자가 [뽑기] 때 섞기 값을 만들어 중계에 '#d<값>' 으로 올리고, 휴대폰 [결과 보기]는 가장 최근 값을 읽는다
+  function cfWinner(names, salt) { return Math.floor(rng(cfSeed(names, salt) + '|win')() * names.length); }
   /** 뽑기 — box 에 [사다리 | 룰렛] 과 그림. names 는 가나다 순 */
   function cfDraw(box, names, how, done, salt) {
-    var w = cfWinner(names, salt), seed = cfSeed(names) + (salt || '');
+    var w = cfWinner(names, salt), seed = cfSeed(names, salt);
     var cel = function () { win('커피는 ' + names[w] + ' 님이 쏩니다!', { pre: '두구두구… 오늘의 커피는?', sub: names.length + '명 중에서 ☕', names: [names[w]] }); if (done) done(names[w]); };
     if (how === 'roulette') {
       box.innerHTML = '<div id="cfWheel"></div><div class="tp-lu-hint">' + ic('play') + '<span class="long">원판을 손가락으로 휙 돌리거나, 원판 · 가운데를 눌러도 돌아가요</span><span class="short">원판을 휙 돌리거나 톡 눌러도 돌아가요</span></div>' +
@@ -3398,9 +3403,17 @@ html:has(body.tp-shake) { overflow: hidden; }
       var hr = Q('#cfHandRow'); if (hr) hr.hidden = true; var la = body.querySelector('.tp-cf-last'); if (la) la.hidden = true;
       if (manual.length) store.set('cfManual', JSON.stringify(manual.slice(0, 30)));
       if (!intro.classList.contains('mini')) luIntroDown(body, intro, '커피 쏘기 — ' + list.length + '명 중 한 명 · 같은 사람이 모였으면 어느 화면 · 어느 방법이든 같은 사람');
-      var salt = hand ? '|hand' + Math.floor(Math.random() * 1e9).toString(36) : ''; // 휴대폰 없이면 매번 새로
-      cfDraw(Q('#cfBox'), list, how, function () { var a = Q('#cfAgain', body); if (!a) return; a.innerHTML = luAgainHtml('커피 뽑기를'); luAgainBind(a, 'lunch'); }, salt);
-      setTimeout(function () { luToTop(Q('.tp-cf-how', body)); }, 100);
+      var nonce = Math.floor(Math.random() * 2e9).toString(36); // 뽑을 때마다 새로
+      var go = function (salt) {
+        cfDraw(Q('#cfBox'), list, how, function () { var a = Q('#cfAgain', body); if (!a) return; a.innerHTML = luAgainHtml('커피 뽑기를'); luAgainBind(a, 'lunch'); }, salt);
+        setTimeout(function () { luToTop(Q('.tp-cf-how', body)); }, 100);
+      };
+      if (hand) { go('|hand' + nonce); return; } // 휴대폰 없이 — 맞출 화면이 없음
+      // 휴대폰이 모이는 방식 — 섞기 값을 중계에 올려 휴대폰 [결과 보기]도 같은 값으로. 못 올리면 예전처럼(방 · 라운드 · 사람으로 정해진 결과 — 화면끼리는 같음)
+      Q('#cfBox').innerHTML = '<p class="tp-muted center">' + ic('coffee') + ' 섞는 중…</p>';
+      relayCall('POST', '/score', null, { room: S.room, round: S.round, game: 'coffee', name: '#d' + nonce, value: 0 })
+        .then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || '못 올림'); go('|d' + nonce); })
+        .catch(function () { toast('중계에 섞기 값을 올리지 못해 정해진 결과로 뽑아요(휴대폰과는 같아요)', 'bad'); go(''); });
     };
     who(); pull(); poll = setInterval(pull, 3000);
     return { off: function () { clearInterval(poll); } };
@@ -3424,8 +3437,10 @@ html:has(body.tp-shake) { overflow: hidden; }
       cfPull().then(function (r) {
         var list = cfNames(r.join.concat(r.lunch));
         if (list.length < 2) { box.innerHTML = '<p class="tp-muted center">아직 두 명이 안 모였어요(' + list.length + '명)</p>'; return; }
+        // 진행자가 [뽑기]를 누르면 올리는 섞기 값 — 없으면 아직 안 뽑은 것(뽑을 때마다 결과가 새로 섞이므로 미리 보여 주지 않음)
+        if (!r.draw) { box.innerHTML = '<p class="tp-muted center">진행자가 아직 뽑지 않았어요 — 진행자 화면에서 뽑은 뒤 다시 눌러 주세요</p>'; return; }
         box.innerHTML = '<div class="tp-cf-pinfo">' + ic('users') + list.length + '명 · 진행자 화면과 같은 사람이 모였으면 같은 결과가 나와요<span class="tp-cf-how sm"><button data-how="ladder">' + ic('ladder') + '사다리</button><button data-how="roulette">' + ic('play') + '룰렛</button></span></div><div id="cfPDraw"></div>';
-        var go2 = function (h) { how = h; box.querySelectorAll('[data-how]').forEach(function (b) { b.classList.toggle('on', b.dataset.how === h); }); cfDraw(Q('#cfPDraw', box), list, h); };
+        var go2 = function (h) { how = h; box.querySelectorAll('[data-how]').forEach(function (b) { b.classList.toggle('on', b.dataset.how === h); }); cfDraw(Q('#cfPDraw', box), list, h, null, '|d' + r.draw); };
         box.querySelectorAll('[data-how]').forEach(function (b) { b.onclick = function () { go2(b.dataset.how); }; });
         go2(how);
       }).catch(function (e) { box.innerHTML = '<p class="tp-muted center">읽지 못했어요(' + esc(e.message) + ')</p>'; });
